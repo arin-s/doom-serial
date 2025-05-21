@@ -14,16 +14,22 @@ add_definitions(
     -DDOOM_IMPLEMENT_GETTIME
     -DDOOM_IMPLEMENT_EXIT
     -DDOOM_IMPLEMENT_GETENV # remove later
+    -D__LINUX__
 )
 
 # Sources
-file(GLOB dpserial_src_files serial.c)
+set(dpserial_src_files
+    serial.cpp
+    linux_uart.cpp
+    ../../thirdparty/JPEGENC/src/JPEGENC.cpp
+)
 if (DOOM_USE_SINGLE_HEADER)
     add_definitions(-DDOOM_EXAMPLE_USE_SINGLE_HEADER)
 else()
     file(GLOB dpserial_doom_src_files ../../src/DOOM/*.*)
     list(APPEND dpserial_includes PUBLIC ../../src/)
 endif()
+list(APPEND dpserial_includes PUBLIC ../../thirdparty/JPEGENC/src)
 
 # Source groups
 source_group("Example" FILES ${dpserial_src_files})
