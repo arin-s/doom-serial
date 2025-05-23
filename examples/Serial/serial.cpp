@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
+#include <signal.h>
+#include <atomic>
 
 #if defined(DOOM_EXAMPLE_USE_SINGLE_HEADER) // Use the PureDOOM.h single header
 #define DOOM_IMPLEMENTATION
@@ -12,23 +15,29 @@
 #include "linux_uart.h"
 #include "../../thirdparty/JPEGENC/src/JPEGENC.h"
 
-void getJPEG(uint8_t *resultBuffer, int *resultSize);
 
+void getJPEG(uint8_t *resultBuffer, int *resultSize);
+void sigintHandler(int sig);
+
+std::atomic<bool> sigint_flag = false; // for SIGINT handler
 const int JPEG_BUFFER_SIZE = 25000; //25kb
 
 int main(int argc, char** argv)
-{
+{   
     // Check arguments
     if(argc != 2) {
         printf("Incorrect argument count");
         return 1;
     }
     // Open port
-    int error = openSerial(argv[1]);
-    if(error) {
+    int serial_port = openSerial(argv[1]);
+    if(serial_port < 0) {
         printf("Failed to open port");
         return 1;
     }
+
+    // Register SIGINT handler
+    signal(SIGINT, sigintHandler);
 
     // Change default bindings to modern
     doom_set_default_int("key_up", DOOM_KEY_W);
@@ -44,22 +53,22 @@ int main(int argc, char** argv)
     
     // Main loop
     int done = 0;
-    while (!done)
+    while (!sigint_flag)
     {
         //Handle input
-        //while (1)
+        //while (1) {}
         if (done) break;
         // Update game loop
-        doom_update();
-        // The JPEG buffer
+        doom_update();// The JPEG buffer
         static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
         static int resultSize;
         getJPEG(resultBuffer, &resultSize);
+        //printf("START: %02X END: %02X\n", resultBuffer[0], resultBuffer[resultSize-1]);
+        //printf("%d\n", resultSize);
         // Encode with JPEGENC
         writeSerial(resultBuffer, resultSize);
     }
-    
-    // Shutdown
+    closeSerial();
     return 0;
 }
 
@@ -96,4 +105,9 @@ void getJPEG(uint8_t *resultBuffer, int *resultSize)
     rc = jpg.addFrame(&state, inputFrame, iPitch);
     *resultSize = jpg.close();
     return;
+}
+
+// set sigint flag to cleanup resources before exiting
+void sigintHandler(int sig) {
+    sigint_flag = true;
 }

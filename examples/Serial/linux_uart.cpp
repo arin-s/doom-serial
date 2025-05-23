@@ -11,7 +11,26 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <thread>
+#include <mutex>
+#include <atomic> // For shared pointer and kill flag
+#include <climits>
+
+
+/*
+A simpler consumer-producer variant:
+1. The consumer consumes far slower than the producer produces.
+2. The frames produced by the producer become stale the moment the next frame is generated.
+Thus, there's no point queueing any frame other than the most recently produced one, making the implementation pretty simple.
+*/
+
+std::thread consumer_thread;
+std::mutex buffer_lock;
+uint8_t* shared_buffer_pointer;
+int shared_buffer_size;
+std::atomic<bool> shared_stop_flag = false;
 int serial_port;
+void consumer_func();
 
 int openSerial(char *port)
 {
@@ -45,65 +64,75 @@ int openSerial(char *port)
 
     tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
     tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
-    // tty.c_oflag &= ~OXTABS; // Prevent conversion of tabs to spaces (NOT PRESENT ON LINUX)
-    // tty.c_oflag &= ~ONOEOT; // Prevent removal of C-d chars (0x004) in output (NOT PRESENT ON LINUX)
 
-    tty.c_cc[VTIME] = 0; // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
-    tty.c_cc[VMIN] = 0;
-
-    // Set in/out baud rate to be 3M
     tty.c_cflag &= ~CBAUD;
     tty.c_cflag |= CBAUDEX;
-    tty.c_ispeed = 3000000;
+    tty.c_ispeed = 3000000; // Set in/out baud rate to be 3M
     tty.c_ospeed = 3000000;
+
+    // for read()
+    tty.c_cc[VTIME] = 0; // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
+    tty.c_cc[VMIN] = 0;
 
     // Save tty settings, also checking for error
     if (ioctl(serial_port, TCSETS2, &tty) < 0)
     {
         printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
-        return 1;
+        return -1;
     }
-    return 0;
+
+    // Initialise the shared buffer
+    shared_buffer_pointer = new uint8_t[25000];
+    // Start the consumer thread
+    consumer_thread = std::thread(consumer_func);
+    return serial_port;
 }
 
-void writeSerial(unsigned char* buf, int size) {
-    write(serial_port, buf, size);
+void writeSerial(uint8_t* buf, int size) {
+    // obtain lock
+    buffer_lock.lock();
+    // write data to shared buffer
+    memcpy(shared_buffer_pointer, buf, size);
+    shared_buffer_size = size;
+    // release lock
+    buffer_lock.unlock();
 }
 
 void closeSerial() {
   close(serial_port);
+  shared_stop_flag = true;
+  consumer_thread.join();
+  delete[] shared_buffer_pointer;
 }
 
-/*
-
-  // Write to serial port
-  unsigned char msg[] = { 'H', 'e', 'l', 'l', 'o', '\r' };
-  write(serial_port, msg, sizeof(msg));
-
-  // Allocate memory for read buffer, set size according to your needs
-  char read_buf [256];
-
-  // Normally you wouldn't do this memset() call, but since we will just receive
-  // ASCII data for this example, we'll set everything to 0 so we can
-  // call printf() easily.
-  memset(&read_buf, '\0', sizeof(read_buf));
-
-  // Read bytes. The behaviour of read() (e.g. does it block?,
-  // how long does it block for?) depends on the configuration
-  // settings above, specifically VMIN and VTIME
-  int num_bytes = read(serial_port, &read_buf, sizeof(read_buf));
-
-  // n is the number of bytes read. n may be 0 if no bytes were received, and can also be -1 to signal an error.
-  if (num_bytes < 0) {
-      printf("Error reading: %s", strerror(errno));
-      return 1;
-  }
-
-  // Here we assume we received ASCII data, but you might be sending raw bytes (in that case, don't try and
-  // print it to the screen like this!)
-  printf("Read %i bytes. Received message: %s", num_bytes, read_buf);
-
-
-  return 0; // success
-};
-*/
+// Consumer thread function
+void consumer_func() {
+    // stop it from spamming stdout on startup
+    shared_buffer_size = -1;
+    bool game_started = false;
+    // internal write buffer
+    uint8_t* write_buffer = new uint8_t[25000];
+    int size;
+    while(shared_stop_flag == false) {
+        // obtain lock
+        buffer_lock.lock();
+        // if we already read this frame
+        if(shared_buffer_size == -1) {
+            if(game_started) {
+                printf("The game is running behind! (or starting up)\n");
+            }
+        }
+        else {
+            game_started = true;
+            // copy shared buffer to write buffer
+            memcpy(write_buffer, shared_buffer_pointer, shared_buffer_size);
+            // save buffer size
+            size = shared_buffer_size;
+            // make frame stale
+            shared_buffer_size = -1;
+        }
+        buffer_lock.unlock();
+        write(serial_port, write_buffer, size);
+    }
+    delete[] write_buffer;
+}
