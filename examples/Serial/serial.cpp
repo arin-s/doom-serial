@@ -3,6 +3,7 @@
 #include <sys/ioctl.h>
 #include <signal.h>
 #include <atomic>
+#include <chrono>
 
 #if defined(DOOM_EXAMPLE_USE_SINGLE_HEADER) // Use the PureDOOM.h single header
 #define DOOM_IMPLEMENTATION
@@ -50,19 +51,32 @@ int main(int argc, char** argv)
     doom_init(argc, argv, DOOM_FLAG_MENU_DARKEN_BG);
 
     //-----------------------------------------------------------------------
-    
     // Main loop
     int done = 0;
     while (!sigint_flag)
     {
-        //Handle input
+        // read from serial port
+        //while()
+        
+
         //while (1) {}
         if (done) break;
+
         // Update game loop
-        doom_update();// The JPEG buffer
+        auto startTime = std::chrono::steady_clock::now();
+        doom_update();
+        auto endTime = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration<double, std::milli>(endTime - startTime);
+        printf("DOOM %f ms\n", duration.count());
+
+        // The JPEG buffer
         static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
         static int resultSize;
+        startTime = std::chrono::steady_clock::now();
         getJPEG(resultBuffer, &resultSize);
+        endTime = std::chrono::steady_clock::now();
+        duration = std::chrono::duration<double, std::milli>(endTime - startTime);
+        printf("JPEG %f ms\n", duration.count());
         //printf("START: %02X END: %02X\n", resultBuffer[0], resultBuffer[resultSize-1]);
         //printf("%d\n", resultSize);
         // Encode with JPEGENC
