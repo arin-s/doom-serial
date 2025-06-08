@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 # Project
 project(pd_sdl_example)
 
-option(DOOM_USE_SINGLE_HEADER "Use single header instead of doom source" ON)
+option(DOOM_USE_SINGLE_HEADER "Use single header instead of doom source" OFF)
 
 # add_definitions(-DDOOM_FAST_TICK)
 add_definitions(
