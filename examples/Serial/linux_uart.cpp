@@ -36,6 +36,8 @@ int openSerial(char *port)
 {
     // Open the serial port. Change device path as needed (currently set to an standard FTDI USB-UART cable type device)
     serial_port = open(port, O_RDWR);
+    usleep(1000);
+    ioctl(serial_port, TCFLSH, 2); // flush both
 
     // Create termios2 struct so we can set a custom baud rate
     struct termios2 tty;
