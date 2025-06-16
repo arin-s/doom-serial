@@ -1,7 +1,12 @@
-cmake_minimum_required(VERSION 3.0)
-
+cmake_minimum_required(VERSION 3.9)
+cmake_policy(SET CMP0069 NEW)
+set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 project(PureDOOM)
 
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
 option(PUREDOOM_BUILD_SDL_EXAMPLE "" OFF)
 option(PUREDOOM_BUILD_TESTS "" OFF)
 option(PUREDOOM_SERIAL "" ON)
