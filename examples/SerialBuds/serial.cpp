@@ -25,7 +25,7 @@ unsigned int rx_callback(unsigned char *buf, unsigned int len) {
 
 void doom_main()
 {
-    hal_trace_rx_register("doom", testcallback);
+    hal_trace_rx_register("doom", rx_callback);
     // Set function implementations
     doom_set_buds_impl();
     
