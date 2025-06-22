@@ -5,8 +5,7 @@
 
 #include "DOOM.h"
 #include "doomdef.h"
-
-//#include <atomic>
+#include "common_serial.h"
 #include "buds.h"
 
 // jpegenc include

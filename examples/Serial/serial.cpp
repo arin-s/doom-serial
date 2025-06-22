@@ -13,15 +13,14 @@
 #include "DOOM/doomdef.h"
 #endif
 
+#include "common/common_serial.h"
+
 #include "linux_uart.h"
 #include "../../thirdparty/JPEGENC/src/JPEGENC.h"
 
-
-void getJPEG(uint8_t *resultBuffer, int *resultSize);
 void sigintHandler(int sig);
 
 std::atomic<bool> sigint_flag = false; // for SIGINT handler
-const int JPEG_BUFFER_SIZE = 25000; //25kb
 
 int main(int argc, char** argv)
 {   
@@ -84,41 +83,6 @@ int main(int argc, char** argv)
     }
     closeSerial();
     return 0;
-}
-
-void getJPEG(uint8_t *resultBuffer, int *resultSize)
-{
-    // Get framebuffer
-    uint8_t* inputFrame = const_cast<uint8_t*>(doom_get_framebuffer(3));
-    // Static copy of JPEG encoder class
-    JPEGENC jpg;
-    // Struct that stores JPEGENC state
-    JPEGENCODE state;
-    // Stores return code
-	int rc;
-	// Specify input pixel format (24-bit RGB)
-	uint8_t ucPixelType = JPEGE_PIXEL_RGB888;
-    // Bits per pixel (24-bit)
-	int iBytePP = 3;
-    // Image stride (number of bytes in a row of pixels)
-    int iPitch = iBytePP * SCREENWIDTH;
-	rc = jpg.open(resultBuffer, JPEG_BUFFER_SIZE);
-	if (rc != JPEGE_SUCCESS)
-	{
-        //free(resultBuffer);
-        //free(pBitmap);
-        //return 1;
-    }
-    rc = jpg.encodeBegin(&state, SCREENWIDTH, SCREENHEIGHT, ucPixelType, JPEGE_SUBSAMPLE_420, JPEGE_Q_HIGH);
-    if (rc != JPEGE_SUCCESS)
-    {
-        //free(resultBuffer);
-        //free(pBitmap);
-        //return 1;
-    }
-    rc = jpg.addFrame(&state, inputFrame, iPitch);
-    *resultSize = jpg.close();
-    return;
 }
 
 // set sigint flag to cleanup resources before exiting
