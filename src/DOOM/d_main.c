@@ -1071,7 +1071,7 @@ void D_DoomMain(void)
 
     // init subsystems
     doom_print("V_Init: allocate screens.\n");
-    V_Init();
+    //V_Init();
 
     doom_print("M_LoadDefaults: Load system defaults.\n");
     M_LoadDefaults();              // load before initing other systems
@@ -1259,5 +1259,5 @@ void D_DoomMain(void)
         debugfile = doom_open(filename, "w");
     }
 
-    I_InitGraphics();
+    //I_InitGraphics();
 }
