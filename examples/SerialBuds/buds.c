@@ -2,6 +2,7 @@
 #include "stdio.h"
 #include "hal_timer.h"
 #include "hal_trace.h"
+#include "string.h"
 
 extern char _binary_______apps_doom_doom1_wad_start[];
 extern char _binary_______apps_doom_doom1_wad_end[];
@@ -18,6 +19,8 @@ static void doom_print_buds(const char* str)
 
 void* doom_open_buds(const char* filename, const char* mode)
 {
+    if(strcmp(filename, "FLASHWAD") != 0)
+        return;
     size_t size = _binary_______apps_doom_doom1_wad_end - _binary_______apps_doom_doom1_wad_start;
     return fmemopen(_binary_______apps_doom_doom1_wad_start, size, mode);
 }
