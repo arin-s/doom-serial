@@ -1,5 +1,7 @@
 #include "DOOM.h"
 #include "stdio.h"
+#include "hal_timer.h"
+#include "hal_trace.h"
 
 extern char _binary_______apps_doom_doom1_wad_start[];
 extern char _binary_______apps_doom_doom1_wad_end[];
@@ -10,7 +12,8 @@ void writeSerial(unsigned char* buf, int size) {
 
 static void doom_print_buds(const char* str)
 {
-    printf("%s", str);
+    TRACE(1, "DOOM TRACE: %s", str);
+    //printf("%s", str);
 }
 
 void* doom_open_buds(const char* filename, const char* mode)
@@ -43,10 +46,18 @@ int doom_eof_buds(void* handle)
     return feof(handle);
 }
 
+uint32_t second = 0;
+uint32_t usecond = 0;
+uint32_t prev_tick = 0;
 void doom_gettime_buds(int* sec, int* usec)
 {
-    *sec = 0;
-    *usec = 0;
+    uint32_t cur_tick = hal_sys_timer_get();
+    usecond += TICKS_TO_US(hal_timer_get_passed_ticks(cur_tick, prev_tick));
+    second += usecond / 1000000;
+    usecond = usecond % 1000000;
+    *sec = second;
+    *usec = usecond;
+    prev_tick = cur_tick;
 }
 
 void doom_set_buds_impl() {
