@@ -1,8 +1,8 @@
 // stdlib includes
 #include <stdio.h>
 #include <stdlib.h>
-//#include <chrono>
 
+// doom includes
 #include "DOOM.h"
 #include "doomdef.h"
 #include "common_serial.h"
@@ -10,15 +10,25 @@
 
 // jpegenc include
 #include "JPEGENC.h"
-#include "serial.h"
 
-#include "common_serial.h"
+// firmware includes
+#include "hal_trace.h"
+#include "hal_iomux.h"
+#include "heap_api.h"
+#include "hal_timer.h"
+
+// buf is NOT null-terminated
+unsigned int rx_callback(unsigned char *buf, unsigned int len) {
+    TRACE(0, "FROG BLAST THE VENT CORE");
+    return 0;
+}
 
 void doom_main()
 {
+    hal_trace_rx_register("doom", testcallback);
     // Set function implementations
     doom_set_buds_impl();
-
+    
     // Change default bindings to modern
     doom_set_default_int("key_up", DOOM_KEY_W);
     doom_set_default_int("key_down", DOOM_KEY_S);
