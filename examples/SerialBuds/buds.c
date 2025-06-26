@@ -3,12 +3,28 @@
 #include "hal_timer.h"
 #include "hal_trace.h"
 #include "string.h"
+#include "heap_api.h"
 
 extern char _binary_______apps_doom_doom1_wad_start[];
 extern char _binary_______apps_doom_doom1_wad_end[];
 
 void writeSerial(unsigned char* buf, int size) {
     
+}
+
+static void* doom_malloc_buds(int size)
+{
+    TRACE(0, "ALLOCATING %d", size);
+    void* ptr = med_malloc((size_t)size);
+    size_t total = 0, used = 0, max_used = 0;
+	med_memory_info(&total, &used, &max_used);
+    TRACE(0, "TOTAL: %d USED: %d PEAK_USAGE: %d", total, used, max_used);
+    return ptr;
+}
+
+static void doom_free_buds(void* ptr)
+{
+    med_free(ptr);
 }
 
 static void doom_print_buds(const char* str)
@@ -67,4 +83,5 @@ void doom_set_buds_impl() {
     doom_set_print(doom_print_buds);
     doom_set_file_io(doom_open_buds, doom_close_buds, doom_read_buds, doom_write_buds, doom_seek_buds, doom_tell_buds, doom_eof_buds);
     doom_set_gettime(doom_gettime_buds);
+    doom_set_malloc(doom_malloc_buds, doom_free_buds);
 }
