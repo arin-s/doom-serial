@@ -17,7 +17,7 @@
 #include "heap_api.h"
 #include "hal_timer.h"
 
-#define HEAP_SIZE 1024*100
+#define HEAP_SIZE 1024*400
 static char heap[HEAP_SIZE];
 
 // buf is NOT null-terminated
@@ -29,12 +29,8 @@ unsigned int rx_callback(unsigned char *buf, unsigned int len) {
 void doom_main()
 {
     hal_trace_rx_register("doom", rx_callback);
-    // heap test
+    // heap init
     med_heap_init(heap, HEAP_SIZE);
-    int* blah = (int*) med_malloc(sizeof(int)*64);
-    size_t total = 0, used = 0, max_used = 0;
-	med_memory_info(&total, &used, &max_used);
-    TRACE(0, "TOTAL: %d USED: %d PEAK_USAGE: %d", total, used, max_used);
     // Set function implementations
     doom_set_buds_impl();
     
