@@ -798,13 +798,11 @@ void D_DoomMain(void)
     char file[256];
 
     FindResponseFile();
-#ifndef DOOMBUDS
-    IdentifyVersion();
-#else
+    
+    //IdentifyVersion();
     static char* loadme = "FLASHWAD";
     wadfiles[0] = loadme;
     gamemode = shareware;
-#endif
 
     modifiedgame = false;
 
