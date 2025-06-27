@@ -9,21 +9,32 @@
 #define DOOM_IMPLEMENTATION
 #include "../../PureDOOM.h"
 #else
-#include "DOOM/DOOM.h"
-#include "DOOM/doomdef.h"
+#include "DOOM.h"
+#include "doomdef.h"
 #endif
 
-#include "common/common_serial.h"
+#include "common_serial.h"
 
 #include "linux_uart.h"
 #include "../../thirdparty/JPEGENC/src/JPEGENC.h"
 
 void sigintHandler(int sig);
+void* doom_open_buds(const char* filename, const char* mode);
+void doom_close_buds(void* handle);
+int doom_read_buds(void* handle, void *buf, int count);
+int doom_write_buds(void* handle, const void *buf, int count);
+int doom_seek_buds(void* handle, int offset, doom_seek_t origin);
+int doom_tell_buds(void* handle);
+int doom_eof_buds(void* handle);
+
+
+extern const unsigned char doom_wad_data_start[];
+extern const unsigned char doom_wad_data_end[];
 
 std::atomic<bool> sigint_flag = false; // for SIGINT handler
 
 int main(int argc, char** argv)
-{   
+{
     // Check arguments
     if(argc != 2) {
         printf("Incorrect argument count");
@@ -38,6 +49,9 @@ int main(int argc, char** argv)
 
     // Register SIGINT handler
     signal(SIGINT, sigintHandler);
+
+    // Use fmemopen()
+    doom_set_file_io(doom_open_buds, doom_close_buds, doom_read_buds, doom_write_buds, doom_seek_buds, doom_tell_buds, doom_eof_buds);
 
     // Change default bindings to modern
     doom_set_default_int("key_up", DOOM_KEY_W);
@@ -88,4 +102,36 @@ int main(int argc, char** argv)
 // set sigint flag to cleanup resources before exiting
 void sigintHandler(int sig) {
     sigint_flag = true;
+}
+
+void* doom_open_buds(const char* filename, const char* mode)
+{
+    if(strcmp(filename, "FLASHWAD") != 0)
+        return NULL;
+    size_t size = doom_wad_data_end - doom_wad_data_start;
+    return fmemopen((void*)doom_wad_data_start, size, mode);
+}
+void doom_close_buds(void* handle)
+{
+    fclose((FILE*)handle);
+}
+int doom_read_buds(void* handle, void *buf, int count)
+{
+    return (int)fread(buf, 1, count, (FILE*)handle);
+}
+int doom_write_buds(void* handle, const void *buf, int count)
+{
+    return (int)fwrite(buf, 1, count, (FILE*)handle);
+}
+int doom_seek_buds(void* handle, int offset, doom_seek_t origin)
+{
+    return fseek((FILE*)handle, offset, origin);
+}
+int doom_tell_buds(void* handle)
+{
+    return (int)ftell((FILE*)handle);
+}
+int doom_eof_buds(void* handle)
+{
+    return feof((FILE*)handle);
 }
