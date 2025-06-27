@@ -27,10 +27,6 @@ int doom_seek_buds(void* handle, int offset, doom_seek_t origin);
 int doom_tell_buds(void* handle);
 int doom_eof_buds(void* handle);
 
-
-extern const unsigned char doom_wad_data_start[];
-extern const unsigned char doom_wad_data_end[];
-
 std::atomic<bool> sigint_flag = false; // for SIGINT handler
 
 int main(int argc, char** argv)
@@ -81,7 +77,7 @@ int main(int argc, char** argv)
         auto endTime = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration<double, std::milli>(endTime - startTime);
         printf("DOOM %f ms\n", duration.count());
-
+        
         // The JPEG buffer
         static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
         static int resultSize;
