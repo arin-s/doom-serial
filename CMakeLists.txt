@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.9)
 project(PureDOOM)
 
 #set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+set(CMAKE_BUILD_TYPE Debug)
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
