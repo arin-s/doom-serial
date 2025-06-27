@@ -17,7 +17,7 @@
 #include "heap_api.h"
 #include "hal_timer.h"
 
-#define HEAP_SIZE 1024*400
+#define HEAP_SIZE 1024*350
 static char heap[HEAP_SIZE];
 
 // buf is NOT null-terminated
