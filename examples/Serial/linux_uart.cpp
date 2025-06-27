@@ -114,7 +114,7 @@ void consumer_func() {
     bool game_started = false;
     // internal write buffer
     uint8_t* write_buffer = new uint8_t[25000];
-    int size;
+    int size = 0;
     while(shared_stop_flag == false) {
         // obtain lock
         buffer_lock.lock();
