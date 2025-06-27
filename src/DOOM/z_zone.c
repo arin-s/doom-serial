@@ -27,6 +27,7 @@
 #include "z_zone.h"
 #include "i_system.h"
 #include "doomdef.h"
+#include "common_serial.h"
 
 
 //
@@ -119,6 +120,9 @@ void Z_Init(void)
 //
 void Z_Free(void* ptr)
 {
+    // ptrs pointing to the embedded wad can be ignored
+    if (ptr >= doom_wad_data_start && ptr < doom_wad_data_end)
+        return;
     memblock_t* block;
     memblock_t* other;
 
@@ -445,6 +449,9 @@ void Z_CheckHeap(void)
 //
 void Z_ChangeTag2(void* ptr, int tag)
 {
+    // ptrs pointing to the embedded wad can be ignored
+    if (ptr >= doom_wad_data_start && ptr < doom_wad_data_end)
+        return;
     memblock_t* block;
 
     block = (memblock_t*)((byte*)ptr - sizeof(memblock_t));
