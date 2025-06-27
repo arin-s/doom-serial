@@ -505,7 +505,13 @@ void* W_CacheLumpNum(int lump, int tag)
         doom_concat(error_buf, " >= numlumps");
         I_Error(error_buf);
     }
-
+#ifdef DOOMBUDS
+    extern char _binary_______apps_doom_doom1_wad_start[];
+    return _binary_______apps_doom_doom1_wad_start + lumpinfo[lump].position;
+#else
+    extern const unsigned char doom_wad_data_start[];
+    return doom_wad_data_start + lumpinfo[lump].position;
+#endif
     if (!lumpcache[lump])
     {
         // read the lump in
