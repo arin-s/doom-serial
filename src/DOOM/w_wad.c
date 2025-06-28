@@ -29,7 +29,7 @@
 #include "i_system.h"
 #include "z_zone.h"
 #include "w_wad.h"
-#include "common_serial.h"
+#include "wad_symbols.h"
 
 
 // #define strcmpi strcasecmp

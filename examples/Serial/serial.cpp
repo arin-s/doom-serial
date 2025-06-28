@@ -13,7 +13,7 @@
 #include "doomdef.h"
 #endif
 
-#include "common_serial.h"
+#include "wad_symbols.h"
 
 #include "linux_uart.h"
 #include "../../thirdparty/JPEGENC/src/JPEGENC.h"

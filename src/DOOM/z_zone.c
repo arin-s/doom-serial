@@ -28,6 +28,7 @@
 #include "i_system.h"
 #include "doomdef.h"
 #include "stdio.h"
+#include "wad_symbols.h"
 
 
 //
