@@ -45,7 +45,7 @@ int numlumps;
 void** lumpcache;
 int reloadlump;
 char* reloadname;
-int info[2500][10];
+//int info[2500][10];
 int profilecount;
 
 
@@ -568,7 +568,7 @@ void W_Profile(void)
             else
                 ch = 'P';
         }
-        info[i][profilecount] = ch;
+        //info[i][profilecount] = ch;
     }
     profilecount++;
 
@@ -593,7 +593,7 @@ void W_Profile(void)
         {
             //fprintf(f, "    %c", info[i][j]);
             doom_fprint(f, "    ");
-            doom_fprint(f, doom_ctoa(info[i][j]));
+            //doom_fprint(f, doom_ctoa(info[i][j]));
         }
 
         doom_fprint(f, "\n");
