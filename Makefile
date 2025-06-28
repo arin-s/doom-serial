@@ -36,7 +36,13 @@ subdir-ccflags-y += \
 
 #shareware wad
 obj-y += shareware.o
-apps/doom/shareware.o:
-	arm-none-eabi-ld -r -b binary $(cur_dir)doom1.wad -o apps/doom/shareware.tmp.o
-	arm-none-eabi-objcopy --rename-section .data=.rodata,alloc,load,readonly,data,contents apps/doom/shareware.tmp.o apps/doom/shareware.o
-	rm apps/doom/shareware.tmp.o
+apps/doom/shareware.o: $(cur_dir)doom1.wad
+	arm-none-eabi-objcopy \
+		--input-target binary \
+		--output-target elf32-littlearm \
+		--binary-architecture arm \
+		--rename-section .data=.rodata,alloc,load,readonly,data,contents \
+		--add-symbol=doom_wad_data_start=.rodata:0,global \
+		--add-symbol=doom_wad_data_end=.rodata:$(shell stat -c%s $(cur_dir)doom1.wad),global \
+		$(cur_dir)doom1.wad \
+		apps/doom/shareware.o
