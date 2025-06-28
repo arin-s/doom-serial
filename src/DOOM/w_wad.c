@@ -512,7 +512,7 @@ void* W_CacheLumpNum(int lump, int tag)
 #else
     return doom_wad_data_start + lumpinfo[lump].position;
 #endif
-    if (!lumpcache[lump])
+    /*if (!lumpcache[lump])
     {
         // read the lump in
 
@@ -526,7 +526,7 @@ void* W_CacheLumpNum(int lump, int tag)
         Z_ChangeTag(lumpcache[lump], tag);
     }
 
-    return lumpcache[lump];
+    return lumpcache[lump];*/
 }
 
 
