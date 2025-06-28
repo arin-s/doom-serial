@@ -11,13 +11,9 @@
 #include <stdlib.h>
 #include <memory.h>
 
-#if defined(DOOM_EXAMPLE_USE_SINGLE_HEADER) // Use the PureDOOM.h single header
-#define DOOM_IMPLEMENTATION
-#include "../../PureDOOM.h"
-#else
-#include "DOOM/DOOM.h"
-#endif
+#include "DOOM.h"
 
+#include "wad_symbols.h"
 
 // Palette experiments
 //#define PICO8 1
@@ -34,6 +30,13 @@
 #define FULL_WIDTH (WIDTH * SCALE)
 #define FULL_HEIGHT (int)(HEIGHT * 1.2 * SCALE) // 1.2x higher than DOOM's height. Original game was designed stretched
 
+void* doom_open_buds(const char* filename, const char* mode);
+void doom_close_buds(void* handle);
+int doom_read_buds(void* handle, void *buf, int count);
+int doom_write_buds(void* handle, const void *buf, int count);
+int doom_seek_buds(void* handle, int offset, doom_seek_t origin);
+int doom_tell_buds(void* handle);
+int doom_eof_buds(void* handle);
 
 doom_key_t sdl_scancode_to_doom_key(SDL_Scancode scancode)
 {
@@ -219,6 +222,7 @@ int main(int argc, char** argv)
     //-----------------------------------------------------------------------
     // Setup DOOM
     //-----------------------------------------------------------------------
+    doom_set_file_io(doom_open_buds, doom_close_buds, doom_read_buds, doom_write_buds, doom_seek_buds, doom_tell_buds, doom_eof_buds);
 
     // Change default bindings to modern
     doom_set_default_int("key_up", DOOM_KEY_W);
@@ -511,4 +515,36 @@ int main(int argc, char** argv)
     SDL_Quit();
 
     return 0;
+}
+
+void* doom_open_buds(const char* filename, const char* mode)
+{
+    if(strcmp(filename, "FLASHWAD") != 0)
+        return NULL;
+    size_t size = doom_wad_data_end - doom_wad_data_start;
+    return fmemopen((void*)doom_wad_data_start, size, mode);
+}
+void doom_close_buds(void* handle)
+{
+    fclose((FILE*)handle);
+}
+int doom_read_buds(void* handle, void *buf, int count)
+{
+    return (int)fread(buf, 1, count, (FILE*)handle);
+}
+int doom_write_buds(void* handle, const void *buf, int count)
+{
+    return (int)fwrite(buf, 1, count, (FILE*)handle);
+}
+int doom_seek_buds(void* handle, int offset, doom_seek_t origin)
+{
+    return fseek((FILE*)handle, offset, origin);
+}
+int doom_tell_buds(void* handle)
+{
+    return (int)ftell((FILE*)handle);
+}
+int doom_eof_buds(void* handle)
+{
+    return feof((FILE*)handle);
 }
