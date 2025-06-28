@@ -27,7 +27,7 @@
 #include "z_zone.h"
 #include "i_system.h"
 #include "doomdef.h"
-#include "common_serial.h"
+#include "stdio.h"
 
 
 //
@@ -180,6 +180,11 @@ void Z_Free(void* ptr)
 //
 void* Z_Malloc(int size, int tag, void* user)
 {
+#ifdef LOG_MEM
+    char format_msg[50];
+    snprintf(format_msg, 50, "Z_ALLOC %d, FREE %d\n", size, Z_FreeMemory());
+    doom_print(format_msg);
+#endif
     int extra;
     memblock_t* start;
     memblock_t* rover;
