@@ -70,6 +70,9 @@ typedef struct memblock_s
 //
 #define Z_ChangeTag(p,t) \
 { \
+    extern unsigned char doom_wad_data_start[]; \
+    extern unsigned char doom_wad_data_end[]; \
+    if (!(p >= doom_wad_data_start && p < doom_wad_data_end)) \
     if (( (memblock_t *)( (byte *)(p) - sizeof(memblock_t)))->id!=0x1d4a11) \
     { \
         /*I_Error("Error: Z_CT at "__FILE__":%i",__LINE__);*/ \
