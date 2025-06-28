@@ -2252,6 +2252,9 @@ void* getsfx(char* sfxname, int* len)
 
     size = W_LumpLength(sfxlump);
 
+    // Just return the embedded wad pointer
+    return W_CacheLumpNum(sfxlump, PU_STATIC);
+    
     sfx = (unsigned char*)W_CacheLumpNum(sfxlump, PU_STATIC);
 
     // Pads the sound effect out to the mixing buffer size.
