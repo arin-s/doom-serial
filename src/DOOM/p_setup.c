@@ -322,13 +322,14 @@ void P_LoadThings(int lump)
         if (spawn == false)
             break;
 
-        // Do spawn all other stuff. 
+        // Do spawn all other stuff.
+        /* unneeded conversion, avoid writing to flash
         mt->x = SHORT(mt->x);
         mt->y = SHORT(mt->y);
         mt->angle = SHORT(mt->angle);
         mt->type = SHORT(mt->type);
         mt->options = SHORT(mt->options);
-
+        */
         P_SpawnMapThing(mt);
     }
 
@@ -461,8 +462,9 @@ void P_LoadBlockMap(int lump)
     blockmap = blockmaplump + 4;
     count = W_LumpLength(lump) / 2;
 
-    for (i = 0; i < count; i++)
-        blockmaplump[i] = SHORT(blockmaplump[i]);
+    // unneeded conversion, avoid writing to flash
+    //for (i = 0; i < count; i++)
+    //    blockmaplump[i] = SHORT(blockmaplump[i]);
 
     bmaporgx = blockmaplump[0] << FRACBITS;
     bmaporgy = blockmaplump[1] << FRACBITS;
