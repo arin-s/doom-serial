@@ -13,6 +13,7 @@
 #include "doomdef.h"
 #endif
 
+#include "common_serial.h"
 #include "wad_symbols.h"
 
 #include "linux_uart.h"
@@ -76,7 +77,7 @@ int main(int argc, char** argv)
         doom_update();
         auto endTime = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration<double, std::milli>(endTime - startTime);
-        printf("DOOM %f ms\n", duration.count());
+        //printf("DOOM %f ms\n", duration.count());
         
         // The JPEG buffer
         static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
@@ -85,7 +86,7 @@ int main(int argc, char** argv)
         getJPEG(resultBuffer, &resultSize);
         endTime = std::chrono::steady_clock::now();
         duration = std::chrono::duration<double, std::milli>(endTime - startTime);
-        printf("JPEG %f ms\n", duration.count());
+        //printf("JPEG %f ms\n", duration.count());
         //printf("START: %02X END: %02X\n", resultBuffer[0], resultBuffer[resultSize-1]);
         //printf("%d\n", resultSize);
         // Encode with JPEGENC
