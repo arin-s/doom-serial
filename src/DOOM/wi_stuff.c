@@ -1450,7 +1450,8 @@ void WI_Ticker(void)
     }
 
     WI_checkForAccelerate();
-
+    // Redraw BG each tick
+    V_DrawPatch(0, 0, 1, bg);
     switch (state)
     {
         case StatCount:
@@ -1494,7 +1495,6 @@ void WI_loadData(void)
 
     // background
     bg = W_CacheLumpName(name, PU_CACHE);
-    V_DrawPatch(0, 0, 1, bg);
 
     if (gamemode == commercial)
     {
