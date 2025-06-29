@@ -34,8 +34,16 @@
 #include "v_video.h"
 
 
-// Each screen is [SCREENWIDTH*SCREENHEIGHT]; 
-byte* screens[5];
+// Each screen is [SCREENWIDTH*SCREENHEIGHT];
+byte doom_screen[SCREENWIDTH * SCREENHEIGHT];
+byte* screens[5] = {
+    doom_screen,
+    doom_screen,
+    doom_screen,
+    doom_screen,
+    doom_screen
+};
+
 
 int dirtybox[4];
 
