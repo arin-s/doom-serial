@@ -20,7 +20,8 @@
 extern char error_buf[260];
 extern int doom_flags;
 extern doom_print_fn doom_print;
-extern doom_malloc_fn doom_malloc;
+extern doom_malloc_fn doom_mallog; // the most beautiful function name there ever was.
+#define doom_malloc(size) (doom_mallog(size, __FILE__, __LINE__))
 extern doom_free_fn doom_free;
 extern doom_open_fn doom_open;
 extern doom_close_fn doom_close;

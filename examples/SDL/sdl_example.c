@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
-
+#include <malloc.h>
 #include "DOOM.h"
 
 #include "wad_symbols.h"
@@ -37,6 +37,8 @@ int doom_write_buds(void* handle, const void *buf, int count);
 int doom_seek_buds(void* handle, int offset, doom_seek_t origin);
 int doom_tell_buds(void* handle);
 int doom_eof_buds(void* handle);
+static void* doom_malloc_buds(int size, char* file, int line);
+static void doom_free_buds(void* ptr);
 
 doom_key_t sdl_scancode_to_doom_key(SDL_Scancode scancode)
 {
@@ -223,6 +225,7 @@ int main(int argc, char** argv)
     // Setup DOOM
     //-----------------------------------------------------------------------
     doom_set_file_io(doom_open_buds, doom_close_buds, doom_read_buds, doom_write_buds, doom_seek_buds, doom_tell_buds, doom_eof_buds);
+    doom_set_malloc(doom_malloc_buds, doom_free_buds);
 
     // Change default bindings to modern
     doom_set_default_int("key_up", DOOM_KEY_W);
@@ -547,4 +550,18 @@ int doom_tell_buds(void* handle)
 int doom_eof_buds(void* handle)
 {
     return feof((FILE*)handle);
+}
+static int alloctotal = 0;
+static void* doom_malloc_buds(int size, char* file, int line)
+{
+    printf("\nMALLOCATING:%d ", size);
+    void* ptr = malloc((size_t)size);
+    alloctotal += size;
+    printf("USED:%d at %s %d", alloctotal, file, line);
+    return ptr;
+}
+static void doom_free_buds(void* ptr)
+{
+    alloctotal -= malloc_usable_size(ptr);
+    free(ptr);
 }

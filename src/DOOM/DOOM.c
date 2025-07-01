@@ -5,7 +5,7 @@
 #endif
 
 #include "DOOM.h"
-
+#include "doom_config.h"
 #include "d_main.h"
 #include "doomdef.h"
 #include "doomtype.h"
@@ -32,7 +32,7 @@ static char itoa_buf[20];
 char error_buf[260];
 int doom_flags = 0;
 doom_print_fn doom_print = 0;
-doom_malloc_fn doom_malloc = 0;
+doom_malloc_fn doom_mallog = 0;
 doom_free_fn doom_free = 0;
 doom_open_fn doom_open = 0;
 doom_close_fn doom_close = 0;
@@ -497,7 +497,7 @@ void doom_set_print(doom_print_fn print_fn)
 
 void doom_set_malloc(doom_malloc_fn malloc_fn, doom_free_fn free_fn)
 {
-    doom_malloc = malloc_fn;
+    doom_mallog = malloc_fn;
     doom_free = free_fn;
 }
 
@@ -541,7 +541,7 @@ void doom_set_getenv(doom_getenv_fn getenv_fn)
 void doom_init(int argc, char** argv, int flags)
 {
     if (!doom_print) doom_print = doom_print_impl;
-    if (!doom_malloc) doom_malloc = doom_malloc_impl;
+    if (!doom_mallog) doom_mallog = doom_malloc_impl;
     if (!doom_free) doom_free = doom_free_impl;
     if (!doom_open) doom_open = doom_open_impl;
     if (!doom_close) doom_close = doom_close_impl;

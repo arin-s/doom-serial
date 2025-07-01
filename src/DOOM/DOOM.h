@@ -63,7 +63,7 @@ typedef enum
 
 
 typedef void(*doom_print_fn)(const char* str);
-typedef void*(*doom_malloc_fn)(int size);
+typedef void*(*doom_malloc_fn)(int size, char* file, int line);
 typedef void(*doom_free_fn)(void* ptr);
 typedef void*(*doom_open_fn)(const char* filename, const char* mode);
 typedef void(*doom_close_fn)(void* handle);
