@@ -101,7 +101,7 @@ typedef enum
 //
 // GLOBAL VARIABLES
 //
-#define MAXEVENTS (64 * 64) // [pd] Crank up the number because we pump them faster
+#define MAXEVENTS (64) // [pd] Crank up the number because we pump them faster
 
 extern event_t events[MAXEVENTS];
 extern int eventhead;
