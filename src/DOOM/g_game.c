@@ -118,7 +118,7 @@ byte* demo_p;
 byte* demoend;
 doom_boolean singledemo; // quit after playing a demo from cmdline 
 
-doom_boolean precache = true; // if true, load all graphics at start 
+doom_boolean precache = false; // if true, load all graphics at start 
 
 wbstartstruct_t wminfo; // parms for world map / intermission 
 
@@ -1589,10 +1589,7 @@ void G_DoPlayDemo(void)
         netdemo = true;
     }
 
-    // don't spend a lot of time in loadlevel 
-    precache = false;
     G_InitNew(skill, episode, map);
-    precache = true;
 
     usergame = false;
     demoplayback = true;
