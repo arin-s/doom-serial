@@ -75,6 +75,7 @@ void I_Tactile(int on, int off, int total);
 
 void I_Error(char* error);
 
+#define ZONE_HEAP_SIZE_KB 550 * 1000
 
 #endif
 

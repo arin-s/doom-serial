@@ -44,7 +44,7 @@
 
 
 void  Z_Init(void);
-void* Z_Malloc(int size, int tag, void* ptr);
+void* Z_Malloc2(int size, int tag, void* ptr, const char* debugfile, int debugline);
 void  Z_Free(void* ptr);
 void  Z_FreeTags(int lowtag, int hightag);
 void  Z_DumpHeap(int lowtag, int hightag);
@@ -83,7 +83,7 @@ typedef struct memblock_s
     } \
     Z_ChangeTag2(p,t); \
 };
-
+#define Z_Malloc(s,t,u) Z_Malloc2(s,t,u,__FILE__,__LINE__)
 
 #endif
 

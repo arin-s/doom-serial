@@ -179,12 +179,10 @@ void Z_Free(void* ptr)
 // Z_Malloc
 // You can pass a 0 user if the tag is < PU_PURGELEVEL.
 //
-void* Z_Malloc(int size, int tag, void* user)
+void* Z_Malloc2(int size, int tag, void* user, const char* debugfile, int debugline)
 {
-#ifdef LOG_MEM
-    char format_msg[50];
-    snprintf(format_msg, 50, "Z_ALLOC %d, FREE %d\n", size, Z_FreeMemory());
-    doom_print(format_msg);
+#ifndef DOOMBUDS
+    printf("\nZ_ALLOC:%d USED:%d %s %d", size, ZONE_HEAP_SIZE_KB - Z_FreeMemory(), debugfile, debugline);
 #endif
     int extra;
     memblock_t* start;

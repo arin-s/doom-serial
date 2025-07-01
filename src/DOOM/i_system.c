@@ -32,9 +32,9 @@
 #include "i_system.h"
 
 
-int mb_used = 6 * (sizeof(void*) / 4);
-ticcmd_t emptycmd;
 
+ticcmd_t emptycmd;
+static byte zone_block[ZONE_HEAP_SIZE_KB];
 
 extern doom_boolean demorecording;
 
@@ -49,17 +49,10 @@ ticcmd_t* I_BaseTiccmd(void)
     return &emptycmd;
 }
 
-
-int I_GetHeapSize(void)
-{
-    return mb_used * 1024 * 1024;
-}
-
-
 byte* I_ZoneBase(int* size)
 {
-    *size = mb_used * 1024 * 1024;
-    return (byte*)doom_malloc(*size);
+    *size = ZONE_HEAP_SIZE_KB;
+    return (byte*)zone_block;
 }
 
 
