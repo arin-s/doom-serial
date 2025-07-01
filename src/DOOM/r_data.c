@@ -487,18 +487,18 @@ void R_InitTextures(void)
     temp1 = W_GetNumForName("S_START");  // P_???????
     temp2 = W_GetNumForName("S_END") - 1;
     temp3 = ((temp2 - temp1 + 63) / 64) + ((numtextures + 63) / 64);
-    doom_print("[");
+    /*doom_print("[");
     for (i = 0; i < temp3; i++)
         doom_print(" ");
     doom_print("         ]");
     for (i = 0; i < temp3; i++)
         doom_print("\x8");
-    doom_print("\x8\x8\x8\x8\x8\x8\x8\x8\x8\x8");
+    doom_print("\x8\x8\x8\x8\x8\x8\x8\x8\x8\x8");*/
 
     for (i = 0; i < numtextures; i++, directory++)
     {
-        if (!(i & 63))
-            doom_print(".");
+        /*if (!(i & 63))
+            doom_print(".");*/
 
         if (i == numtextures1)
         {
@@ -614,8 +614,8 @@ void R_InitSpriteLumps(void)
 
     for (i = 0; i < numspritelumps; i++)
     {
-        if (!(i & 63))
-            doom_print(".");
+        /*if (!(i & 63))
+            doom_print(".");*/
 
         patch = W_CacheLumpNum(firstspritelump + i, PU_CACHE);
         spritewidth[i] = SHORT(patch->width) << FRACBITS;
