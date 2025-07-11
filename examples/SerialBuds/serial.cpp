@@ -21,7 +21,7 @@
 #include "hal_timer.h"
 #include "cmsis_os.h"
 
-#define HEAP_SIZE 1000*350
+#define HEAP_SIZE 1000*50
 static char heap[HEAP_SIZE];
 unsigned int rx_callback(unsigned char *buf, unsigned int len);
 
