@@ -3,11 +3,15 @@
 #include "doomdef.h"
 #include "JPEGENC.h"
 #include "common_serial.h"
+#include "v_video.h"
+#include "doom_config.h"
+
+extern unsigned char screen_palette[256 * 3];
+
+uint8_t* getMCU(int x, int y, uint8_t* mcu);
 
 void getJPEG(uint8_t *resultBuffer, int *resultSize)
 {
-    // Get framebuffer
-    uint8_t* inputFrame = const_cast<uint8_t*>(doom_get_framebuffer(3));
     // Static copy of JPEG encoder class
     JPEGENC jpg;
     // Struct that stores JPEGENC state
@@ -34,7 +38,40 @@ void getJPEG(uint8_t *resultBuffer, int *resultSize)
         //free(pBitmap);
         //return 1;
     }
-    rc = jpg.addFrame(&state, inputFrame, iPitch);
+    
+    static uint8_t mcu[16 * 16 * 3];
+    int mcu_count = ((SCREENWIDTH + 15) / 16) * ((SCREENHEIGHT + 15) / 16);
+    for(int i = 0; i < mcu_count; i++)
+    {
+        jpg.addMCU(&state, getMCU(state.x, state.y, mcu), 16 * 3);
+    }
+    //rc = jpg.addFrame(&state, inputFrame, iPitch);
+    if(rc != JPEGE_SUCCESS)
+    {
+        doom_print("something went wrong");
+        exit(1);
+    }
     *resultSize = jpg.close();
     return;
+}
+
+uint8_t* getMCU(int x, int y, uint8_t* mcu)
+{
+    int palette_index, fb_coord, mcu_coord;
+    for (int i = 0; i < 16; i++)
+    {
+        for (int j = 0; j < 16; j++)
+        {
+            if(y + i < SCREENHEIGHT)
+                fb_coord = (y + i) * SCREENWIDTH + x + j;
+            else
+                fb_coord = (SCREENHEIGHT - 1) * SCREENWIDTH + x + j;
+            mcu_coord = (i * 16 + j) * 3;
+            palette_index = screens[0][fb_coord] * 3;
+            mcu[mcu_coord + 2] = screen_palette[palette_index + 0];
+            mcu[mcu_coord + 1] = screen_palette[palette_index + 1];
+            mcu[mcu_coord + 0] = screen_palette[palette_index + 2];
+        }
+    }
+    return mcu;
 }

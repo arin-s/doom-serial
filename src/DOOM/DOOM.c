@@ -21,9 +21,6 @@ extern default_t defaults[];
 extern int numdefaults;
 extern signed short mixbuffer[2048];
 
-
-static unsigned char* screen_buffer = 0;
-static unsigned char* final_screen_buffer = 0;
 static int last_update_time = 0;
 static int button_states[3] = { 0 };
 static char itoa_buf[20];
@@ -554,8 +551,6 @@ void doom_init(int argc, char** argv, int flags)
     if (!doom_exit) doom_exit = doom_exit_impl;
     if (!doom_getenv) doom_getenv = doom_getenv_impl;
 
-    screen_buffer = doom_malloc(SCREENWIDTH * SCREENHEIGHT);
-    final_screen_buffer = doom_malloc(SCREENWIDTH * SCREENHEIGHT * 4);
     last_update_time = I_GetTime();
 
     myargc = argc;
@@ -589,75 +584,6 @@ void doom_force_update()
         D_UpdateWipe();
     else
         D_DoomLoop();
-}
-
-
-const unsigned char* doom_get_framebuffer(int channels)
-{
-    int i, len;
-
-    doom_memcpy(screen_buffer, screens[0], SCREENWIDTH * SCREENHEIGHT);
-
-    extern doom_boolean menuactive;
-    extern gamestate_t gamestate; 
-    extern doom_boolean automapactive;
-    extern int crosshair;
-
-    // Draw crosshair
-    if (crosshair && 
-        !menuactive &&
-        gamestate == GS_LEVEL &&
-        !automapactive)
-    {
-        int y;
-        extern int setblocks;
-        if (setblocks == 11) y = SCREENHEIGHT / 2 + 8;
-        else y = SCREENHEIGHT / 2 - 8;
-        for (i = 0; i < 2; ++i)
-        {
-            screen_buffer[SCREENWIDTH / 2 - 2 - i + y * SCREENWIDTH] = 4;
-            screen_buffer[SCREENWIDTH / 2 + 2 + i + y * SCREENWIDTH] = 4;
-        }
-        for (i = 0; i < 2; ++i)
-        {
-            screen_buffer[SCREENWIDTH / 2 + (y - 2 - i) * SCREENWIDTH] = 4;
-            screen_buffer[SCREENWIDTH / 2 + (y + 2 + i) * SCREENWIDTH] = 4;
-        }
-    }
-
-    if (channels == 1)
-    {
-        return screen_buffer;
-    }
-    else if (channels == 3)
-    {
-        for (i = 0, len = SCREENWIDTH * SCREENHEIGHT; i < len; ++i)
-        {
-            int k = i * 3;
-            int kpal = screen_buffer[i] * 3;
-            final_screen_buffer[k + 2] = screen_palette[kpal + 0];
-            final_screen_buffer[k + 1] = screen_palette[kpal + 1];
-            final_screen_buffer[k + 0] = screen_palette[kpal + 2];
-        }
-        return final_screen_buffer;
-    }
-    else if (channels == 4)
-    {
-        for (i = 0, len = SCREENWIDTH * SCREENHEIGHT; i < len; ++i)
-        {
-            int k = i * 4;
-            int kpal = screen_buffer[i] * 3;
-            final_screen_buffer[k + 0] = screen_palette[kpal + 0];
-            final_screen_buffer[k + 1] = screen_palette[kpal + 1];
-            final_screen_buffer[k + 2] = screen_palette[kpal + 2];
-            final_screen_buffer[k + 3] = 255;
-        }
-        return final_screen_buffer;
-    }
-    else
-    {
-        return 0;
-    }
 }
 
 
