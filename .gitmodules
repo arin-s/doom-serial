@@ -1,0 +1,3 @@
+[submodule "thirdparty/JPEGENC"]
+	path = thirdparty/JPEGENC
+	url = https://github.com/bitbank2/JPEGENC.git
