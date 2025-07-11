@@ -7,6 +7,9 @@
 #include "doomdef.h"
 #include "common_serial.h"
 #include "buds.h"
+#include "doom_config.h"
+#include <algorithm>
+#include <math.h>
 
 // jpegenc include
 #include "JPEGENC.h"
@@ -16,15 +19,11 @@
 #include "hal_iomux.h"
 #include "heap_api.h"
 #include "hal_timer.h"
+#include "cmsis_os.h"
 
 #define HEAP_SIZE 1000*350
 static char heap[HEAP_SIZE];
-
-// buf is NOT null-terminated
-unsigned int rx_callback(unsigned char *buf, unsigned int len) {
-    TRACE(0, "FROG BLAST THE VENT CORE");
-    return 0;
-}
+unsigned int rx_callback(unsigned char *buf, unsigned int len);
 
 void doom_main()
 {
@@ -39,7 +38,9 @@ void doom_main()
     doom_set_default_int("key_down", DOOM_KEY_S);
     doom_set_default_int("key_strafeleft", DOOM_KEY_A);
     doom_set_default_int("key_straferight", DOOM_KEY_D);
-    doom_set_default_int("key_use", DOOM_KEY_E);
+    doom_set_default_int("key_left", DOOM_KEY_LEFT_ARROW);
+    doom_set_default_int("key_right", DOOM_KEY_RIGHT_ARROW);
+    doom_set_default_int("key_fire", DOOM_KEY_CTRL);
 
     // Initialize doom
     doom_init(0, (char**){NULL}, DOOM_FLAG_MENU_DARKEN_BG);
@@ -69,7 +70,43 @@ void doom_main()
         //printf("START: %02X END: %02X\n", resultBuffer[0], resultBuffer[resultSize-1]);
         //printf("%d\n", resultSize);
         // Encode with JPEGENC
-        writeSerial(resultBuffer, resultSize);
+        hal_trace_output(resultBuffer, resultSize);
     }
     return;
+}
+
+char keyState[255];
+// buf is NOT null-terminated
+unsigned int rx_callback(unsigned char *buf, unsigned int len) {
+    doom_key_t ascii;
+    int newState, oldState;
+    /*TRACE(1, "RECEIVED INPUT: ");
+    for (int i = 0; i < len; i++)
+    {
+        int state = (buf[i] >> 7) & 0b1;
+        char c = ~(1 << 7) & buf[i];
+        TRACE(1, "%c%d", c, state);
+    }
+    TRACE(1,"\n");*/
+    for (int i = 0; i < len; i++)
+    {
+        oldState = (keyState[i] >> 7) & 0b1;
+        newState = (buf[i] >> 7) & 0b1;
+        ascii = static_cast<doom_key_t>(~(1 << 7) & buf[i]);
+        if(newState != oldState)
+        {
+            //TRACE(1, "INPUT CHANGE: %c FROM %d to %d\n", (char)ascii, oldState, newState);
+            switch(newState)
+            {
+                case 0:
+                    doom_key_up(ascii);
+                    break;
+                case 1:
+                    doom_key_down(ascii);
+                    break;
+            }
+            keyState[i] = buf[i];
+        }
+    }
+    return 0;
 }

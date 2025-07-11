@@ -132,10 +132,10 @@ typedef enum
     DOOM_KEY_Y = 'y',
     DOOM_KEY_Z = 'z',
     DOOM_KEY_BACKSPACE = 127,
-    DOOM_KEY_CTRL = (0x80 + 0x1d), // Both left and right
-    DOOM_KEY_LEFT_ARROW = 0xac,
+    DOOM_KEY_CTRL = 17, // JS ASCII CODE
+    DOOM_KEY_LEFT_ARROW = 37, // JS ASCII CODE
     DOOM_KEY_UP_ARROW = 0xad,
-    DOOM_KEY_RIGHT_ARROW = 0xae,
+    DOOM_KEY_RIGHT_ARROW = 39, // JS ASCII CODE
     DOOM_KEY_DOWN_ARROW = 0xaf,
     DOOM_KEY_SHIFT = (0x80 + 0x36), // Both left and right
     DOOM_KEY_ALT = (0x80 + 0x38), // Both left and right
