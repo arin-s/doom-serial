@@ -1,7 +1,0 @@
-[submodule "thirdparty/SDL"]
-	path = thirdparty/SDL
-	url = https://github.com/libsdl-org/SDL.git
-	branch = SDL2
-[submodule "thirdparty/JPEGENC"]
-	path = thirdparty/JPEGENC
-	url = https://github.com/bitbank2/JPEGENC.git
