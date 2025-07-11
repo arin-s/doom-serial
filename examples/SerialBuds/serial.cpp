@@ -47,29 +47,41 @@ void doom_main()
 
     //-----------------------------------------------------------------------
     // Main loop
+    int start_sec, start_usec, end_sec, end_usec, delta_sec, delta_usec;
     while (true)
     {
         // read from serial port
         //while()
 
         // Update game loop
-        //auto startTime = std::chrono::steady_clock::now();
+        doom_gettime(&start_sec, &start_usec);
         doom_update();
-        //auto endTime = std::chrono::steady_clock::now();
-        //auto duration = std::chrono::duration<double, std::milli>(endTime - startTime);
-        //printf("DOOM %f ms\n", duration.count());
+        doom_gettime(&end_sec, &end_usec);
+        delta_sec = end_sec - start_sec;
+        delta_usec = end_usec - start_usec;
+        if(delta_usec < 0)
+        {
+            delta_usec += 1000000;
+            delta_sec--;
+        }
+        //TRACE(1, "DOOM_UPDATE() %d.%06d", delta_sec, delta_usec);
+        //osDelay(10);
 
         // The JPEG buffer
         static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
         static int resultSize;
-        //startTime = std::chrono::steady_clock::now();
+        doom_gettime(&start_sec, &start_usec);
         getJPEG(resultBuffer, &resultSize);
-        //endTime = std::chrono::steady_clock::now();
-        //duration = std::chrono::duration<double, std::milli>(endTime - startTime);
-        //printf("JPEG %f ms\n", duration.count());
-        //printf("START: %02X END: %02X\n", resultBuffer[0], resultBuffer[resultSize-1]);
-        //printf("%d\n", resultSize);
-        // Encode with JPEGENC
+        doom_gettime(&end_sec, &end_usec);
+        delta_sec = end_sec - start_sec;
+        delta_usec = end_usec - start_usec;
+        if(delta_usec < 0)
+        {
+            delta_usec += 1000000;
+            delta_sec--;
+        }
+        //TRACE(1, "getJPEG() %d.%06d", delta_sec, delta_usec);
+        //TRACE(1, "getJPEG() SIZE: %d", resultSize);
         hal_trace_output(resultBuffer, resultSize);
     }
     return;
