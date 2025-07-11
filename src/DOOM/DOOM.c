@@ -64,7 +64,7 @@ static void doom_print_impl(const char* str) {}
 
 #if defined(DOOM_IMPLEMENT_MALLOC)
 #include <stdlib.h>
-static void* doom_malloc_impl(int size)
+static void* doom_malloc_impl(int size, char* file, int line)
 {
     return malloc((size_t)size);
 }
@@ -73,7 +73,7 @@ static void doom_free_impl(void* ptr)
     free(ptr);
 }
 #else
-static void* doom_malloc_impl(int size) { return 0; }
+static void* doom_malloc_impl(int size, char* file, int line) { return 0; }
 static void doom_free_impl(void* ptr) {}
 #endif
 

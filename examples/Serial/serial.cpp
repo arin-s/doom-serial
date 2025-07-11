@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <atomic>
 #include <chrono>
+#include <malloc.h>
 
 #if defined(DOOM_EXAMPLE_USE_SINGLE_HEADER) // Use the PureDOOM.h single header
 #define DOOM_IMPLEMENTATION
@@ -27,6 +28,8 @@ int doom_write_buds(void* handle, const void *buf, int count);
 int doom_seek_buds(void* handle, int offset, doom_seek_t origin);
 int doom_tell_buds(void* handle);
 int doom_eof_buds(void* handle);
+static void* doom_malloc_buds(int size, char* file, int line);
+static void doom_free_buds(void* ptr);
 
 std::atomic<bool> sigint_flag = false; // for SIGINT handler
 
@@ -49,6 +52,7 @@ int main(int argc, char** argv)
 
     // Use fmemopen()
     doom_set_file_io(doom_open_buds, doom_close_buds, doom_read_buds, doom_write_buds, doom_seek_buds, doom_tell_buds, doom_eof_buds);
+    doom_set_malloc(doom_malloc_buds, doom_free_buds);
 
     // Change default bindings to modern
     doom_set_default_int("key_up", DOOM_KEY_W);
@@ -56,7 +60,6 @@ int main(int argc, char** argv)
     doom_set_default_int("key_strafeleft", DOOM_KEY_A);
     doom_set_default_int("key_straferight", DOOM_KEY_D);
     doom_set_default_int("key_use", DOOM_KEY_E);
-
     // Initialize doom
     doom_init(argc, argv, DOOM_FLAG_MENU_DARKEN_BG);
 
@@ -77,7 +80,7 @@ int main(int argc, char** argv)
         doom_update();
         auto endTime = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration<double, std::milli>(endTime - startTime);
-        //printf("DOOM %f ms\n", duration.count());
+        printf("DOOM %f ms\n", duration.count());
         
         // The JPEG buffer
         static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
@@ -86,7 +89,7 @@ int main(int argc, char** argv)
         getJPEG(resultBuffer, &resultSize);
         endTime = std::chrono::steady_clock::now();
         duration = std::chrono::duration<double, std::milli>(endTime - startTime);
-        //printf("JPEG %f ms\n", duration.count());
+        printf("JPEG %f ms\n", duration.count());
         //printf("START: %02X END: %02X\n", resultBuffer[0], resultBuffer[resultSize-1]);
         //printf("%d\n", resultSize);
         // Encode with JPEGENC
@@ -131,4 +134,18 @@ int doom_tell_buds(void* handle)
 int doom_eof_buds(void* handle)
 {
     return feof((FILE*)handle);
+}
+static int alloctotal = 0;
+static void* doom_malloc_buds(int size, char* file, int line)
+{
+    printf("\nMALLOCATING:%d ", size);
+    void* ptr = malloc((size_t)size);
+    alloctotal += size;
+    printf("USED:%d at %s %d", alloctotal, file, line);
+    return ptr;
+}
+static void doom_free_buds(void* ptr)
+{
+    alloctotal -= malloc_usable_size(ptr);
+    free(ptr);
 }
