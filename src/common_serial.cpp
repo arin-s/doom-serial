@@ -95,7 +95,7 @@ static unsigned short s_KeyQueue[KEYQUEUE_SIZE];
 static unsigned int s_KeyQueueWriteIndex = 0;
 static unsigned int s_KeyQueueReadIndex = 0;
 
-static void addKeyToQueue(int pressed, unsigned int keyCode)
+void addKeyToQueue(int pressed, unsigned int keyCode)
 {
 	unsigned char key = convertToDoomKey(keyCode);
 
