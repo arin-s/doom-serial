@@ -12,20 +12,6 @@
 #define DOOMGENERIC_RESY 400
 #endif  // DOOMGENERIC_RESY
 
-
-#ifdef CMAP256
-
-typedef uint8_t pixel_t;
-
-#else  // CMAP256
-
-typedef uint32_t pixel_t;
-
-#endif  // CMAP256
-
-
-extern pixel_t* DG_ScreenBuffer;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
