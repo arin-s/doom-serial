@@ -8,11 +8,8 @@ cur_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 subdir-ccflags-y += \
 	-Iapps/doom/src/ \
 	-Iapps/doom/thirdparty/JPEGENC/src
-C_SRC := $(shell find $(cur_dir)src/ -name '*.c')
-C_SRC += $(shell find $(cur_dir)src/targets/buds -name '*.c')
-
-CPP_SRC := $(shell find $(cur_dir)src/ -name '*.cpp')
-CPP_SRC += $(shell find $(cur_dir)src/targets/buds -name '*.cpp')
+C_SRC := $(shell find $(cur_dir)src/ -name '*.c' -not -path "*/targets/headless/*")
+CPP_SRC := $(shell find $(cur_dir)src/ -name '*.cpp' -not -path "*/targets/headless/*")
 
 obj-y += $(C_SRC:.c=.o)
 obj-y += $(CPP_SRC:.cpp=.o)
