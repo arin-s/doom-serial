@@ -78,7 +78,7 @@ uint8_t* getMCU(int x, int y, uint8_t* mcu)
     return mcu;
 }
 
-static void convertToDoomKey(int keyCode) {
+static unsigned char convertToDoomKey(unsigned int key) {
     // Change default bindings to modern layout
     /*doom_set_default_int("key_up", DOOM_KEY_W);
     doom_set_default_int("key_down", DOOM_KEY_S);
