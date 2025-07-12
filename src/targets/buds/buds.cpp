@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <math.h>
 
-// jpegenc include
+#include "doomgeneric.h"
 #include "JPEGENC.h"
 
 // firmware includes
@@ -84,6 +84,19 @@ void doom_main()
         hal_trace_output(resultBuffer, resultSize);
     }
     return;
+}
+
+static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
+static int resultSize;
+void DG_DrawFrame()
+{
+    start_ms = DG_GetTicksMs();
+    getJPEG(resultBuffer, &resultSize);
+    end_ms = DG_GetTicksMs();
+    //TRACE(1, "getJPEG() %d.%06d", delta_sec, delta_usec);
+    //TRACE(1, "getJPEG() SIZE: %d", resultSize);
+
+    hal_trace_output(resultBuffer, resultSize);
 }
 
 char keyState[255];

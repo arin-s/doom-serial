@@ -131,14 +131,6 @@ void DG_SetWindowTitle(const char * title)
 	
 }
 
-static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
-static int resultSize;
-void DG_DrawFrame()
-{
-    getJPEG(resultBuffer, &resultSize);
-
-}
-
 void DG_Init()
 {
 	memset(s_KeyQueue, 0, KEYQUEUE_SIZE * sizeof(unsigned short));
