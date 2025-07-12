@@ -1,0 +1,1 @@
+void doom_main();
