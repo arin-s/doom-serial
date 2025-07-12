@@ -7,6 +7,7 @@ cur_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 #includes
 subdir-ccflags-y += \
 	-Iapps/doom/src/ \
+	-Iapps/doom/src/targets/buds \
 	-Iapps/doom/thirdparty/JPEGENC/src
 C_SRC := $(shell find $(cur_dir)src/ -name '*.c' -not -path "*/targets/headless/*")
 CPP_SRC := $(shell find $(cur_dir)src/ -name '*.cpp' -not -path "*/targets/headless/*")

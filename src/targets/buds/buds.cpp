@@ -7,6 +7,7 @@
 // doom
 #include "doomdef.h"
 #include "stubs.h"
+#include "buds.h"
 #include "common_serial.h"
 #include "doomgeneric.h"
 
