@@ -1,144 +1,43 @@
-#include "doomkeys.h"
-
-#include "doomgeneric.h"
-
+// stdlib
 #include <ctype.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <stdio.h>
 
+// JPEGENC
 #include "JPEGENC.h"
+
+// doom
 #include "i_video.h"
+#include "doomkeys.h"
+#include "common_serial.h"
 
-#define KEYQUEUE_SIZE 16
+// os
+#include "cmsis_os.h"
+#include "hal_timer.h"
 
-static unsigned short s_KeyQueue[KEYQUEUE_SIZE];
-static unsigned int s_KeyQueueWriteIndex = 0;
-static unsigned int s_KeyQueueReadIndex = 0;
-
-void getJPEG(uint8_t *resultBuffer, int *resultSize);
-static const int JPEG_BUFFER_SIZE = 25000; //25kb
-
-static void addKeyToQueue(int pressed, unsigned int keyCode)
-{
-    /*
-	unsigned char key = convertToDoomKey(keyCode);
-
-	unsigned short keyData = (pressed << 8) | key;
-
-	s_KeyQueue[s_KeyQueueWriteIndex] = keyData;
-	s_KeyQueueWriteIndex++;
-	s_KeyQueueWriteIndex %= KEYQUEUE_SIZE;
-    */
-}
-
-
-
-void DG_Init()
-{
-	memset(s_KeyQueue, 0, KEYQUEUE_SIZE * sizeof(unsigned short));
-  	//s_Image = XCreateImage(s_Display, DefaultVisual(s_Display, s_Screen), depth, ZPixmap, 0, (char *)DG_ScreenBuffer, DOOMGENERIC_RESX, DOOMGENERIC_RESX, 32, 0);
-}
-
-
-void DG_DrawFrame()
-{
-    static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
-    static int resultSize;
-    getJPEG(resultBuffer, &resultSize);
-
-}
+// stubs
+#include "doomgeneric.h"
 
 void DG_SleepMs(uint32_t ms)
 {
     osDelay(ms);
 }
 
+uint32_t second = 0;
+uint32_t usecond = 0;
+uint32_t prev_tick = 0;
 uint32_t DG_GetTicksMs()
 {
-    struct timeval  tp;
-    struct timezone tzp;
-
-    gettimeofday(&tp, &tzp);
-
-    return (tp.tv_sec * 1000) + (tp.tv_usec / 1000); /* return milliseconds */
-}
-
-int DG_GetKey(int* pressed, unsigned char* doomKey)
-{
-	if (s_KeyQueueReadIndex == s_KeyQueueWriteIndex)
-	{
-		//key queue is empty
-
-		return 0;
-	}
-	else
-	{
-		unsigned short keyData = s_KeyQueue[s_KeyQueueReadIndex];
-		s_KeyQueueReadIndex++;
-		s_KeyQueueReadIndex %= KEYQUEUE_SIZE;
-
-		*pressed = keyData >> 8;
-		*doomKey = keyData & 0xFF;
-
-		return 1;
-	}
-}
-
-void DG_SetWindowTitle(const char * title)
-{
-	
-}
-
-void doom_main()
-{
-    Serial1.begin(3000000);
-    doomgeneric_Create(0, (char**){NULL});
-    while(1)
-    {
-      doomgeneric_Tick(); 
-    }
-
-    return;
+    uint32_t cur_tick = hal_sys_timer_get();
+    usecond += TICKS_TO_US(hal_timer_get_passed_ticks(cur_tick, prev_tick));
+    second += usecond / 1000000;
+    usecond = usecond % 1000000;
+    return (second * 1000) + (usecond / 1000); /* return milliseconds */
 }
 
 
-
-
-void getJPEG(uint8_t *resultBuffer, int *resultSize)
-{
-    uint8_t* inputFrame = (uint8_t*)DG_ScreenBuffer;
-    // Static copy of JPEG encoder class
-    JPEGENC jpg;
-    // Struct that stores JPEGENC state
-    JPEGENCODE state;
-    // Stores return code
-	int rc;
-	// Specify input pixel format (24-bit RGB)
-	uint8_t ucPixelType = JPEGE_PIXEL_ARGB8888;
-    // Bits per pixel (24-bit)
-	int iBytePP = 4;
-    // Image stride (number of bytes in a row of pixels)
-    int iPitch = iBytePP * SCREENWIDTH;
-	rc = jpg.open(resultBuffer, JPEG_BUFFER_SIZE);
-	if (rc != JPEGE_SUCCESS)
-	{
-        //free(resultBuffer);
-        //free(pBitmap);
-        //return 1;
-    }
-    rc = jpg.encodeBegin(&state, SCREENWIDTH, SCREENHEIGHT, ucPixelType, JPEGE_SUBSAMPLE_420, JPEGE_Q_HIGH);
-    if (rc != JPEGE_SUCCESS)
-    {
-        //free(resultBuffer);
-        //free(pBitmap);
-        //return 1;
-    }
-    rc = jpg.addFrame(&state, inputFrame, iPitch);
-    *resultSize = jpg.close();
-    return;
-}
 
 /*#include "stdio.h"
 #include "hal_timer.h"
@@ -204,20 +103,6 @@ int doom_tell_buds(void* handle)
 int doom_eof_buds(void* handle)
 {
     return feof(handle);
-}
-
-uint32_t second = 0;
-uint32_t usecond = 0;
-uint32_t prev_tick = 0;
-void doom_gettime_buds(int* sec, int* usec)
-{
-    uint32_t cur_tick = hal_sys_timer_get();
-    usecond += TICKS_TO_US(hal_timer_get_passed_ticks(cur_tick, prev_tick));
-    second += usecond / 1000000;
-    usecond = usecond % 1000000;
-    *sec = second;
-    *usec = usecond;
-    prev_tick = cur_tick;
 }
 
 void doom_set_buds_impl() {

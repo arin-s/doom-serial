@@ -5,10 +5,10 @@
 #include "v_video.h"
 #include "i_video.h"
 
-extern unsigned char screen_palette[256 * 3];
+// stubs
+#include "doomgeneric.h"
 
 uint8_t* getMCU(int x, int y, uint8_t* mcu);
-
 void getJPEG(uint8_t *resultBuffer, int *resultSize)
 {
     // Static copy of JPEG encoder class
@@ -54,6 +54,7 @@ void getJPEG(uint8_t *resultBuffer, int *resultSize)
     return;
 }
 
+extern unsigned char screen_palette[256 * 3];
 uint8_t* getMCU(int x, int y, uint8_t* mcu)
 {
     /*
@@ -75,4 +76,70 @@ uint8_t* getMCU(int x, int y, uint8_t* mcu)
     }
     */
     return mcu;
+}
+
+static void convertToDoomKey(int keyCode) {
+    // Change default bindings to modern layout
+    /*doom_set_default_int("key_up", DOOM_KEY_W);
+    doom_set_default_int("key_down", DOOM_KEY_S);
+    doom_set_default_int("key_strafeleft", DOOM_KEY_A);
+    doom_set_default_int("key_straferight", DOOM_KEY_D);
+    doom_set_default_int("key_left", DOOM_KEY_LEFT_ARROW);
+    doom_set_default_int("key_right", DOOM_KEY_RIGHT_ARROW);
+    doom_set_default_int("key_fire", DOOM_KEY_CTRL);*/
+
+}
+
+#define KEYQUEUE_SIZE 16
+static unsigned short s_KeyQueue[KEYQUEUE_SIZE];
+static unsigned int s_KeyQueueWriteIndex = 0;
+static unsigned int s_KeyQueueReadIndex = 0;
+
+static void addKeyToQueue(int pressed, unsigned int keyCode)
+{
+	unsigned char key = convertToDoomKey(keyCode);
+
+	unsigned short keyData = (pressed << 8) | key;
+
+	s_KeyQueue[s_KeyQueueWriteIndex] = keyData;
+	s_KeyQueueWriteIndex++;
+	s_KeyQueueWriteIndex %= KEYQUEUE_SIZE;
+}
+
+int DG_GetKey(int* pressed, unsigned char* doomKey)
+{
+	if (s_KeyQueueReadIndex == s_KeyQueueWriteIndex)
+	{
+		//key queue is empty
+		return 0;
+	}
+	else
+	{
+		unsigned short keyData = s_KeyQueue[s_KeyQueueReadIndex];
+		s_KeyQueueReadIndex++;
+		s_KeyQueueReadIndex %= KEYQUEUE_SIZE;
+
+		*pressed = keyData >> 8;
+		*doomKey = keyData & 0xFF;
+
+		return 1;
+	}
+}
+
+void DG_SetWindowTitle(const char * title)
+{
+	
+}
+
+static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
+static int resultSize;
+void DG_DrawFrame()
+{
+    getJPEG(resultBuffer, &resultSize);
+
+}
+
+void DG_Init()
+{
+	memset(s_KeyQueue, 0, KEYQUEUE_SIZE * sizeof(unsigned short));
 }
