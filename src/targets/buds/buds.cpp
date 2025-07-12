@@ -63,8 +63,7 @@ void DG_DrawFrame()
 char keyState[255];
 // buf is NOT null-terminated
 unsigned int rx_callback(unsigned char *buf, unsigned int len) {
-    char ascii;
-    int newState, oldState;
+    int newState, oldState, ascii;
     /*TRACE(1, "RECEIVED INPUT: ");
     for (int i = 0; i < len; i++)
     {
