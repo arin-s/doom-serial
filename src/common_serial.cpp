@@ -57,7 +57,7 @@ void getJPEG(uint8_t *resultBuffer, int *resultSize)
 extern unsigned char screen_palette[256 * 3];
 uint8_t* getMCU(int x, int y, uint8_t* mcu)
 {
-    /*
+    struct color c;
     int palette_index, fb_coord, mcu_coord;
     for (int i = 0; i < 16; i++)
     {
@@ -68,13 +68,12 @@ uint8_t* getMCU(int x, int y, uint8_t* mcu)
             else
                 fb_coord = (SCREENHEIGHT - 1) * SCREENWIDTH + x + j;
             mcu_coord = (i * 16 + j) * 3;
-            palette_index = screens[0][fb_coord] * 3;
-            mcu[mcu_coord + 2] = screen_palette[palette_index + 0];
-            mcu[mcu_coord + 1] = screen_palette[palette_index + 1];
-            mcu[mcu_coord + 0] = screen_palette[palette_index + 2];
+            c = colors[*(I_VideoBuffer + fb_coord)];
+            mcu[mcu_coord + 2] = (uint8_t)c.r;
+            mcu[mcu_coord + 1] = (uint8_t)c.g;
+            mcu[mcu_coord + 0] = (uint8_t)c.b;
         }
     }
-    */
     return mcu;
 }
 
