@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     signal(SIGINT, sigintHandler);
 
     // Initialize doom
-    doom_init(argc, argv, DOOM_FLAG_MENU_DARKEN_BG);
+    doomgeneric_Create(argc, argv);
 
     //-----------------------------------------------------------------------
     // Main loop
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 
         // Update game loop
         auto startTime = std::chrono::steady_clock::now();
-        doom_update();
+        doomgeneric_Tick();
         auto endTime = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration<double, std::milli>(endTime - startTime);
         printf("DOOM %f ms\n", duration.count());
