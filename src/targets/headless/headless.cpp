@@ -6,13 +6,7 @@
 #include <chrono>
 #include <malloc.h>
 
-#if defined(DOOM_EXAMPLE_USE_SINGLE_HEADER) // Use the PureDOOM.h single header
-#define DOOM_IMPLEMENTATION
-#include "../../PureDOOM.h"
-#else
-#include "DOOM.h"
 #include "doomdef.h"
-#endif
 
 #include "common_serial.h"
 #include "wad_symbols.h"
@@ -21,15 +15,6 @@
 #include "../../thirdparty/JPEGENC/src/JPEGENC.h"
 
 void sigintHandler(int sig);
-void* doom_open_buds(const char* filename, const char* mode);
-void doom_close_buds(void* handle);
-int doom_read_buds(void* handle, void *buf, int count);
-int doom_write_buds(void* handle, const void *buf, int count);
-int doom_seek_buds(void* handle, int offset, doom_seek_t origin);
-int doom_tell_buds(void* handle);
-int doom_eof_buds(void* handle);
-static void* doom_malloc_buds(int size, char* file, int line);
-static void doom_free_buds(void* ptr);
 
 std::atomic<bool> sigint_flag = false; // for SIGINT handler
 
@@ -50,16 +35,6 @@ int main(int argc, char** argv)
     // Register SIGINT handler
     signal(SIGINT, sigintHandler);
 
-    // Use fmemopen()
-    doom_set_file_io(doom_open_buds, doom_close_buds, doom_read_buds, doom_write_buds, doom_seek_buds, doom_tell_buds, doom_eof_buds);
-    doom_set_malloc(doom_malloc_buds, doom_free_buds);
-
-    // Change default bindings to modern
-    doom_set_default_int("key_up", DOOM_KEY_W);
-    doom_set_default_int("key_down", DOOM_KEY_S);
-    doom_set_default_int("key_strafeleft", DOOM_KEY_A);
-    doom_set_default_int("key_straferight", DOOM_KEY_D);
-    doom_set_default_int("key_use", DOOM_KEY_E);
     // Initialize doom
     doom_init(argc, argv, DOOM_FLAG_MENU_DARKEN_BG);
 
@@ -104,37 +79,8 @@ void sigintHandler(int sig) {
     sigint_flag = true;
 }
 
-void* doom_open_buds(const char* filename, const char* mode)
-{
-    if(strcmp(filename, "FLASHWAD") != 0)
-        return NULL;
-    size_t size = doom_wad_data_end - doom_wad_data_start;
-    return fmemopen((void*)doom_wad_data_start, size, mode);
-}
-void doom_close_buds(void* handle)
-{
-    fclose((FILE*)handle);
-}
-int doom_read_buds(void* handle, void *buf, int count)
-{
-    return (int)fread(buf, 1, count, (FILE*)handle);
-}
-int doom_write_buds(void* handle, const void *buf, int count)
-{
-    return (int)fwrite(buf, 1, count, (FILE*)handle);
-}
-int doom_seek_buds(void* handle, int offset, doom_seek_t origin)
-{
-    return fseek((FILE*)handle, offset, origin);
-}
-int doom_tell_buds(void* handle)
-{
-    return (int)ftell((FILE*)handle);
-}
-int doom_eof_buds(void* handle)
-{
-    return feof((FILE*)handle);
-}
+
+/*
 static int alloctotal = 0;
 static void* doom_malloc_buds(int size, char* file, int line)
 {
@@ -149,28 +95,4 @@ static void doom_free_buds(void* ptr)
     alloctotal -= malloc_usable_size(ptr);
     free(ptr);
 }
-
-// stubs
-
-#include <sys/stat.h>
-#include <errno.h>
-#ifdef errno
-#undef errno
-#endif
-extern int errno;
-
-// These are the ones from your error message
-int _unlink(const char *name) {
-    errno = ENOENT; // No such file or directory
-    return -1;      // Always fail
-}
-
-int _link(const char *old_name, const char *new_name) {
-    errno = EMLINK; // Too many links
-    return -1;      // Always fail
-}
-
-int _open(const char *name, int flags, int mode) {
-  // Return a file descriptor or -1 on error
-  return -1; // Not implemented
-}
+*/

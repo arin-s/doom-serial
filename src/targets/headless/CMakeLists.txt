@@ -29,13 +29,6 @@ option(DOOM_USE_SINGLE_HEADER "Use single header instead of doom source" OFF)
 
 # add_definitions(-DDOOM_FAST_TICK) 70FPS
 add_definitions(
-    -DDOOM_IMPLEMENT_PRINT
-    -DDOOM_IMPLEMENT_MALLOC
-    #-DDOOM_IMPLEMENT_FILE_IO
-    #-DDOOM_IMPLEMENT_SOCKETS
-    -DDOOM_IMPLEMENT_GETTIME
-    -DDOOM_IMPLEMENT_EXIT
-    -DDOOM_IMPLEMENT_GETENV # remove later
     -D__LINUX__
 )
 
