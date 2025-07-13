@@ -58,6 +58,7 @@
 #define DEFAULT_RAM 6 /* MiB */
 #define MIN_RAM     6  /* MiB */
 
+static byte zone_block[ZONE_HEAP_SIZE_KB];
 
 typedef struct atexit_listentry_s atexit_listentry_t;
 
@@ -132,35 +133,8 @@ static byte *AutoAllocMemory(int *size, int default_ram, int min_ram)
 
 byte *I_ZoneBase (int *size)
 {
-    byte *zonemem;
-    int min_ram, default_ram;
-    int p;
-
-    //!
-    // @arg <mb>
-    //
-    // Specify the heap size, in MiB (default 16).
-    //
-
-    p = M_CheckParmWithArgs("-mb", 1);
-
-    if (p > 0)
-    {
-        default_ram = atoi(myargv[p+1]);
-        min_ram = default_ram;
-    }
-    else
-    {
-        default_ram = DEFAULT_RAM;
-        min_ram = MIN_RAM;
-    }
-
-    zonemem = AutoAllocMemory(size, default_ram, min_ram);
-
-    printf("zone memory: %p, %x allocated for zone\n", 
-           zonemem, *size);
-
-    return zonemem;
+    *size = ZONE_HEAP_SIZE_KB;
+    return (byte*)zone_block;
 }
 
 void I_PrintBanner(char *msg)
@@ -403,7 +377,7 @@ void I_Error (char *error, ...)
         entry = entry->next;
     }
 
-    exit_gui_popup = !M_ParmExists("-nogui");
+    exit_gui_popup = false;
 
     // Pop up a GUI dialog box to show the error message, if the
     // game was not run from the console (and the user will
@@ -466,9 +440,7 @@ void I_Error (char *error, ...)
 
     exit(-1);
 #else
-    while (true)
-    {
-    }
+    exit(-1);
 #endif
 }
 

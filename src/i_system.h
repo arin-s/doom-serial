@@ -80,5 +80,7 @@ void I_PrintBanner(char *text);
 
 void I_PrintDivider(void);
 
+#define ZONE_HEAP_SIZE_KB 400 * 1024
+
 #endif
 
