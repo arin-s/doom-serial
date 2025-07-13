@@ -56,19 +56,18 @@ int main(int argc, char** argv)
         auto endTime = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration<double, std::milli>(endTime - startTime);
         printf("DOOM %f ms\n", duration.count());
-        
-        // The JPEG buffer
-        static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
-        static int resultSize;
+
         startTime = std::chrono::steady_clock::now();
         getJPEG(resultBuffer, &resultSize);
         endTime = std::chrono::steady_clock::now();
         duration = std::chrono::duration<double, std::milli>(endTime - startTime);
         printf("JPEG %f ms\n", duration.count());
-        //printf("START: %02X END: %02X\n", resultBuffer[0], resultBuffer[resultSize-1]);
-        //printf("%d\n", resultSize);
-        // Encode with JPEGENC
+
+        startTime = std::chrono::steady_clock::now();
         writeSerial(resultBuffer, resultSize);
+        endTime = std::chrono::steady_clock::now();
+        duration = std::chrono::duration<double, std::milli>(endTime - startTime);
+        printf("WRITESTREAM %f ms\n", duration.count());
     }
     closeSerial();
     return 0;
