@@ -9,10 +9,12 @@
 #include "doomdef.h"
 
 #include "common_serial.h"
-#include "wad_symbols.h"
+#include "common_symbols.h"
+#include "doomgeneric.h"
 
 #include "linux_uart.h"
-#include "../../thirdparty/JPEGENC/src/JPEGENC.h"
+#include "JPEGENC.h"
+#include <sys/time.h>
 
 void sigintHandler(int sig);
 
@@ -41,6 +43,8 @@ int main(int argc, char** argv)
     //-----------------------------------------------------------------------
     // Main loop
     int done = 0;
+    static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
+    static int resultSize;
     while (!sigint_flag)
     {
         // read from serial port
