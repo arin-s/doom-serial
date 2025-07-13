@@ -17,9 +17,9 @@ add_custom_command(
         --input-target binary
         --output-target elf64-x86-64
         --binary-architecture i386
-        --rename-section .data=.rodata,alloc,load,readonly,data,contents
-        "--add-symbol=doom_wad_data_start=.rodata:0,global"
-        "--add-symbol=doom_wad_data_end=.rodata:${WAD_FILE_SIZE},global"
+        --rename-section .data=.data,alloc,load,readonly,data,contents
+        "--add-symbol=doom_wad_data_start=.data:0,global"
+        "--add-symbol=doom_wad_data_end=.data:${WAD_FILE_SIZE},global"
     ARGS
         ${WAD_FILE} ${WAD_OBJECT_FILE}
     DEPENDS ${WAD_FILE}
@@ -34,19 +34,14 @@ add_definitions(
 
 # Sources
 set(dpserial_src_files
-    serial.cpp
+    headless.cpp
     linux_uart.cpp
-    ../../src/common/common_serial.cpp
-    ../../thirdparty/JPEGENC/src/JPEGENC.cpp
+    ../../../thirdparty/JPEGENC/src/JPEGENC.cpp
 )
-if (DOOM_USE_SINGLE_HEADER)
-    add_definitions(-DDOOM_EXAMPLE_USE_SINGLE_HEADER)
-else()
-    file(GLOB dpserial_doom_src_files ../../src/DOOM/*.*)
-    list(APPEND dpserial_includes PUBLIC ../../src/DOOM)
-    list(APPEND dpserial_includes PUBLIC ../../src/common)
-endif()
-list(APPEND dpserial_includes PUBLIC ../../thirdparty/JPEGENC/src)
+
+file(GLOB dpserial_doom_src_files ../../*.*)
+list(APPEND dpserial_includes PUBLIC ../../)
+list(APPEND dpserial_includes PUBLIC ../../../thirdparty/JPEGENC/src)
 
 # Source groups
 source_group("Example" FILES ${dpserial_src_files})
