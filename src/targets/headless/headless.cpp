@@ -74,6 +74,22 @@ int main(int argc, char** argv)
     return 0;
 }
 
+void DG_SleepMs(uint32_t ms)
+{
+    usleep (ms * 1000);
+}
+
+uint32_t DG_GetTicksMs()
+{
+    struct timeval  tp;
+    struct timezone tzp;
+
+    gettimeofday(&tp, &tzp);
+
+    return (tp.tv_sec * 1000) + (tp.tv_usec / 1000); /* return milliseconds */
+}
+
+
 // set sigint flag to cleanup resources before exiting
 void sigintHandler(int sig) {
     sigint_flag = true;
