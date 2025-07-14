@@ -24,14 +24,14 @@
 // This is the stuff configured by Setup.Exe.
 // Most key data are simple ascii (uppercased).
 //
-#define KEY_RIGHTARROW	0xae
-#define KEY_LEFTARROW	0xac
-#define KEY_UPARROW		0xad
-#define KEY_DOWNARROW	0xaf
-#define KEY_STRAFE_L	0xa0
-#define KEY_STRAFE_R	0xa1
-#define KEY_USE			0xa2
-#define KEY_FIRE		0xa3
+#define KEY_RIGHTARROW	39
+#define KEY_LEFTARROW	37
+#define KEY_UPARROW		'w'
+#define KEY_DOWNARROW	's'
+#define KEY_STRAFE_L	'a'
+#define KEY_STRAFE_R	'd'
+#define KEY_USE			'e'
+#define KEY_FIRE		32
 #define KEY_ESCAPE		27
 #define KEY_ENTER		13
 #define KEY_TAB			9
@@ -54,7 +54,7 @@
 #define KEY_EQUALS	0x3d
 #define KEY_MINUS	0x2d
 
-#define KEY_RSHIFT	(0x80+0x36)
+#define KEY_RSHIFT	16
 #define KEY_RCTRL	(0x80+0x1d)
 #define KEY_RALT	(0x80+0x38)
 
