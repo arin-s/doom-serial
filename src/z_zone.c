@@ -181,12 +181,11 @@ void Z_Free (void* ptr)
 #define MINFRAGMENT		64
 
 
-void*
-Z_Malloc
-( int		size,
-  int		tag,
-  void*		user )
+void* Z_Malloc2(int size, int tag, void* user, const char* debugfile, int debugline)
 {
+#ifndef DOOMBUDS
+    printf("Z_ALLOC:%d USED:%d %s %d\n", size, ZONE_HEAP_SIZE_KB - Z_FreeMemory(), debugfile, debugline);
+#endif
     int		extra;
     memblock_t*	start;
     memblock_t* rover;
