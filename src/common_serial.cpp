@@ -4,6 +4,7 @@
 #include "common_serial.h"
 #include "v_video.h"
 #include "i_video.h"
+#include <set>
 
 // stubs
 #include "doomgeneric.h"
@@ -77,27 +78,13 @@ uint8_t* getMCU(int x, int y, uint8_t* mcu)
     return mcu;
 }
 
-static unsigned char convertToDoomKey(unsigned int key) {
-    // Change default bindings to modern layout
-    /*doom_set_default_int("key_up", DOOM_KEY_W);
-    doom_set_default_int("key_down", DOOM_KEY_S);
-    doom_set_default_int("key_strafeleft", DOOM_KEY_A);
-    doom_set_default_int("key_straferight", DOOM_KEY_D);
-    doom_set_default_int("key_left", DOOM_KEY_LEFT_ARROW);
-    doom_set_default_int("key_right", DOOM_KEY_RIGHT_ARROW);
-    doom_set_default_int("key_fire", DOOM_KEY_CTRL);*/
-
-}
-
 #define KEYQUEUE_SIZE 16
 static unsigned short s_KeyQueue[KEYQUEUE_SIZE];
 static unsigned int s_KeyQueueWriteIndex = 0;
 static unsigned int s_KeyQueueReadIndex = 0;
 
-void addKeyToQueue(int pressed, unsigned int keyCode)
+void addKeyToQueue(int pressed, unsigned char key)
 {
-	unsigned char key = convertToDoomKey(keyCode);
-
 	unsigned short keyData = (pressed << 8) | key;
 
 	s_KeyQueue[s_KeyQueueWriteIndex] = keyData;
@@ -133,4 +120,26 @@ void DG_SetWindowTitle(const char * title)
 void DG_Init()
 {
 	memset(s_KeyQueue, 0, KEYQUEUE_SIZE * sizeof(unsigned short));
+}
+
+std::set<uint8_t> pressed_keys;
+// buf is NOT null-terminated
+unsigned int processInput(unsigned char *buf, unsigned int len) {
+    int state, ascii;
+    for (int i = 0; i < len; i++)
+    {
+        state = (buf[i] >> 7) & 0b1;
+        ascii = ~(1 << 7) & buf[i];
+        // key is pressed and not in set
+        if (state && pressed_keys.find(ascii) == pressed_keys.end())
+            pressed_keys.insert(ascii);
+        // key is not pressed and in set
+        else if(!state && !(pressed_keys.find(ascii) == pressed_keys.end()))
+            pressed_keys.erase(ascii);
+        else
+            continue;
+        //printf("INPUT CHANGE: %c FROM %d to %d\n", ascii, ~state, state);
+        addKeyToQueue(state, ascii);
+    }
+    return 0;
 }

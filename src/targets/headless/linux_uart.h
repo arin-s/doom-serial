@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 int openSerial(char *port);
+void readSerial(uint8_t* &buf, int* size);
 void writeSerial(unsigned char* buf, int size);
 void closeSerial();
 

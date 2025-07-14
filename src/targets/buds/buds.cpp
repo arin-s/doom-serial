@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <math.h>
+#include <set>
 
 // doom
 #include "doomdef.h"
@@ -29,7 +30,7 @@ int start_ms, end_ms, delta_ms;
 void doom_main()
 {
     // For rx input commands
-    hal_trace_rx_register("doom", rx_callback);
+    hal_trace_rx_register("doom", processInput);
     // Heap init
     med_heap_init(heap, HEAP_SIZE);
     // Initialize doom
@@ -58,31 +59,4 @@ void DG_DrawFrame()
     //TRACE(1, "getJPEG() SIZE: %d", resultSize);
 
     hal_trace_output(resultBuffer, resultSize);
-}
-
-char keyState[255];
-// buf is NOT null-terminated
-unsigned int rx_callback(unsigned char *buf, unsigned int len) {
-    int newState, oldState, ascii;
-    /*TRACE(1, "RECEIVED INPUT: ");
-    for (int i = 0; i < len; i++)
-    {
-        int state = (buf[i] >> 7) & 0b1;
-        char c = ~(1 << 7) & buf[i];
-        TRACE(1, "%c%d", c, state);
-    }
-    TRACE(1,"\n");*/
-    for (int i = 0; i < len; i++)
-    {
-        oldState = (keyState[i] >> 7) & 0b1;
-        newState = (buf[i] >> 7) & 0b1;
-        ascii = ~(1 << 7) & buf[i];
-        if(newState != oldState)
-        {
-            //TRACE(1, "INPUT CHANGE: %c FROM %d to %d\n", ascii, oldState, newState);
-            addKeyToQueue(newState, ascii);
-            keyState[i] = buf[i];
-        }
-    }
-    return 0;
 }

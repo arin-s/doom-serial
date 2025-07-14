@@ -42,18 +42,18 @@ int main(int argc, char** argv)
 
     //-----------------------------------------------------------------------
     // Main loop
-    int done = 0;
+    int done = 0, *size;
     static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
     static int resultSize;
+    uint8_t* read_buffer;
     while (!sigint_flag)
     {
-        // read from serial port
-        //while()
+        // read from port
+        readSerial(read_buffer, size);
+        // process key input
+        processInput(read_buffer, *size);
+        delete[] read_buffer;
         
-
-        //while (1) {}
-        if (done) break;
-
         // Update game loop
         auto startTime = std::chrono::steady_clock::now();
         doomgeneric_Tick();

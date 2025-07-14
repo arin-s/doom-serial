@@ -90,6 +90,21 @@ int openSerial(char *port)
     return serial_port;
 }
 
+// reads the entire read buffer into buf and sets size
+void readSerial(uint8_t* &buf, int* size) {
+    int bytes_read = 0, total_read = 0, bytes_to_read;
+    ioctl(serial_port, FIONREAD, &bytes_to_read);
+    uint8_t tmp_buf[bytes_to_read];
+    uint8_t* final_buf = new uint8_t[bytes_to_read];
+    while(total_read != bytes_to_read) {
+        bytes_read = read(serial_port, tmp_buf, bytes_to_read - total_read);
+        memcpy(final_buf + total_read, tmp_buf, bytes_read);
+        total_read += bytes_read;
+    }
+    *size = total_read;
+    buf = final_buf;
+}
+
 void writeSerial(uint8_t* buf, int size) {
     // obtain lock
     buffer_lock.lock();
