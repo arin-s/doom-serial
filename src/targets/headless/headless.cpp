@@ -98,20 +98,31 @@ void sigintHandler(int sig) {
     sigint_flag = true;
 }
 
-
-/*
+#ifdef __cplusplus
+extern "C" {
+#endif
 static int alloctotal = 0;
-static void* doom_malloc_buds(int size, char* file, int line)
+void* doom_malloc_log(int size, const char* file, const int line)
 {
     printf("\nMALLOCATING:%d ", size);
     void* ptr = malloc((size_t)size);
+    if (ptr == NULL) {
+        printf("MALLOC FAILED! Size:%d at %s:%d\n", size, file, line);
+        exit(1);
+    }
     alloctotal += size;
     printf("USED:%d at %s %d", alloctotal, file, line);
     return ptr;
 }
-static void doom_free_buds(void* ptr)
+void doom_free_log(void* ptr, const char* file, const int line)
 {
+    if (ptr == NULL) {
+        printf("WARNING: Trying to free NULL pointer\n");
+        return;
+    }
     alloctotal -= malloc_usable_size(ptr);
     free(ptr);
 }
-*/
+#ifdef __cplusplus
+}
+#endif

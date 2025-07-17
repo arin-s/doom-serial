@@ -18,7 +18,7 @@
 //	Functions to draw patches (by post) directly to screen.
 //	Functions to blit a block to the screen.
 //
-
+#include "common_serial.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -754,7 +754,7 @@ void WritePNGfile(char *filename, byte *data,
                  8, PNG_COLOR_TYPE_PALETTE, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-    pcolor = malloc(sizeof(*pcolor) * 256);
+    pcolor = doom_malloc(sizeof(*pcolor) * 256);
     if (!pcolor)
     {
         png_destroy_write_struct(&ppng, &pinfo);
@@ -769,7 +769,7 @@ void WritePNGfile(char *filename, byte *data,
     }
 
     png_set_PLTE(ppng, pinfo, pcolor, 256);
-    free(pcolor);
+    doom_free(pcolor);
 
     png_write_info(ppng, pinfo);
 

@@ -16,6 +16,8 @@
 // os
 #include "cmsis_os.h"
 #include "hal_timer.h"
+#include "hal_trace.h"
+#include "heap_api.h"
 
 // stubs
 #include "doomgeneric.h"
@@ -36,37 +38,27 @@ uint32_t DG_GetTicksMs()
     usecond = usecond % 1000000;
     return (second * 1000) + (usecond / 1000); /* return milliseconds */
 }
-
-
-
-/*#include "stdio.h"
-#include "hal_timer.h"
-#include "hal_trace.h"
-#include "string.h"
-#include "heap_api.h"
-
-extern char _binary_______apps_doom_doom1_wad_start[];
-extern char _binary_______apps_doom_doom1_wad_end[];
-
-void writeSerial(unsigned char* buf, int size) {
-    
-}
-
-static void* doom_malloc_buds(int size)
+extern "C" {
+void* doom_malloc_log(int size, const char* file, const int line)
 {
-    TRACE(0, "ALLOCATING %d", size);
+    TRACE(0, "ALLOCATING %d from %s:%d\n", size, file, line);
     void* ptr = med_malloc((size_t)size);
     size_t total = 0, used = 0, max_used = 0;
 	med_memory_info(&total, &used, &max_used);
-    TRACE(0, "TOTAL: %d USED: %d PEAK_USAGE: %d", total, used, max_used);
+    TRACE(0, "TOTAL: %d USED: %d PEAK_USAGE: %d\n", total, used, max_used);
     return ptr;
 }
 
-static void doom_free_buds(void* ptr)
+void doom_free_log(void* ptr, const char* file, const int line)
 {
+    if (ptr == NULL) {
+        printf("WARNING: Trying to free NULL pointer\n");
+        return;
+    }
     med_free(ptr);
 }
-
+}
+/*
 static void doom_print_buds(const char* str)
 {
     TRACE(1, "DOOM TRACE: %s", str);

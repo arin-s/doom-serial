@@ -16,7 +16,7 @@
 //	Archiving: SaveGame I/O.
 //
 
-
+#include "common_serial.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -67,7 +67,7 @@ char *P_SaveGameFile(int slot)
     if (filename == NULL)
     {
         filename_size = strlen(savegamedir) + 32;
-        filename = malloc(filename_size);
+        filename = doom_malloc(filename_size);
     }
 
     DEH_snprintf(basename, 32, SAVEGAMENAME "%d.dsg", slot);

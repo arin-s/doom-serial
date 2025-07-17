@@ -27,15 +27,15 @@ void getJPEG(uint8_t *resultBuffer, int *resultSize)
 	rc = jpg.open(resultBuffer, JPEG_BUFFER_SIZE);
 	if (rc != JPEGE_SUCCESS)
 	{
-        //free(resultBuffer);
-        //free(pBitmap);
+        //doom_free(resultBuffer);
+        //doom_free(pBitmap);
         //return 1;
     }
     rc = jpg.encodeBegin(&state, SCREENWIDTH, SCREENHEIGHT, ucPixelType, JPEGE_SUBSAMPLE_420, JPEGE_Q_HIGH);
     if (rc != JPEGE_SUCCESS)
     {
-        //free(resultBuffer);
-        //free(pBitmap);
+        //doom_free(resultBuffer);
+        //doom_free(pBitmap);
         //return 1;
     }
     

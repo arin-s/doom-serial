@@ -18,7 +18,7 @@
 
 
 
-
+#include "common_serial.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,8 +89,8 @@ static void ExtendLumpInfo(int newnumlumps)
     lumpinfo_t *newlumpinfo;
     unsigned int i;
 
-    newlumpinfo = calloc(newnumlumps, sizeof(lumpinfo_t));
-
+    newlumpinfo = doom_malloc(newnumlumps * sizeof(lumpinfo_t));
+    
     if (newlumpinfo == NULL)
     {
 	I_Error ("Couldn't realloc lumpinfo");
@@ -118,7 +118,7 @@ static void ExtendLumpInfo(int newnumlumps)
     }
 
     // All done.
-    free(lumpinfo);
+    doom_free(lumpinfo);
     lumpinfo = newlumpinfo;
     numlumps = newnumlumps;
 }
@@ -207,6 +207,7 @@ wad_file_t *W_AddFile (char *filename)
 
     // Increase size of numlumps array to accomodate the new file.
     startlump = numlumps;
+    
     ExtendLumpInfo(newnumlumps);
 
     lump_p = &lumpinfo[startlump];
