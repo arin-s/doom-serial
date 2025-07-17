@@ -305,6 +305,7 @@ void D_Display (void)
     }
     
     // wipe update
+    /*
     wipe_EndScreen(0, 0, SCREENWIDTH, SCREENHEIGHT);
 
     wipestart = I_GetTime () - 1;
@@ -324,6 +325,7 @@ void D_Display (void)
 	I_UpdateNoBlit ();
 	M_Drawer ();                            // menu is drawn even on top of wipes
     } while (!done);
+     */
 }
 
 //
