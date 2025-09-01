@@ -401,21 +401,41 @@ boolean D_GrabMouseCallback(void)
 
     return (gamestate == GS_LEVEL) && !demoplayback && !advancedemo;
 }
-
+//#define TICKLOG
 void doomgeneric_Tick()
 {
-    // frame syncronous IO operations
+#ifdef TICKLOG
+int start_ms, end_ms;
+start_ms = I_GetTimeMS();
+#endif
+    //frame syncronous IO operations
     I_StartFrame ();
-
+#ifdef TICKLOG
+end_ms = I_GetTimeMS();
+printf("STARTFRAME %d\n", end_ms - start_ms);
+start_ms = I_GetTimeMS();
+#endif
     TryRunTics (); // will run at least one tic
-
+#ifdef TICKLOG
+end_ms = I_GetTimeMS();
+printf("RUNTICS %d\n", end_ms - start_ms);
+start_ms = I_GetTimeMS();
+#endif
     S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
-
+#ifdef TICKLOG
+end_ms = I_GetTimeMS();
+printf("SOUNDS %d\n", end_ms - start_ms);
     // Update display, next frame, with current state.
+start_ms = I_GetTimeMS();
+#endif
     if (screenvisible)
     {
         D_Display ();
     }
+#ifdef TICKLOG
+end_ms = I_GetTimeMS();
+printf("DISPLAY %d\n", end_ms - start_ms);
+#endif
 }
 
 //
