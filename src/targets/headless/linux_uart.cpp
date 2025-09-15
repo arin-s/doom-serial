@@ -91,7 +91,7 @@ int openSerial(char *port)
 }
 
 // reads the entire read buffer into buf and sets size
-void readSerial(uint8_t* &buf, int* size) {
+void readSerial(uint8_t* &buf, int &size) {
     int bytes_read = 0, total_read = 0, bytes_to_read;
     ioctl(serial_port, FIONREAD, &bytes_to_read);
     uint8_t tmp_buf[bytes_to_read];
@@ -101,7 +101,7 @@ void readSerial(uint8_t* &buf, int* size) {
         memcpy(final_buf + total_read, tmp_buf, bytes_read);
         total_read += bytes_read;
     }
-    *size = total_read;
+    size = total_read;
     buf = final_buf;
 }
 

@@ -1,7 +1,12 @@
 #pragma once
 #include <stdint.h>
 void getJPEG(uint8_t *resultBuffer, int *resultSize);
-static const int JPEG_BUFFER_SIZE = 25000; //25kb
+#define JPEG_BUFFER_SIZE 25000 //25kb
+#ifdef __cplusplus
+void cobsEncode(uint8_t* data, int &len);
+#endif
+extern const int JPEG_BUFFER_OFFSET; // to account for serialisation overhead
+static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
 unsigned int processInput(unsigned char *buf, unsigned int len);
 #ifdef __cplusplus
 extern "C" {

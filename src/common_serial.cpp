@@ -5,13 +5,17 @@
 #include "v_video.h"
 #include "i_video.h"
 #include <set>
+#include <cmath>
 
 // stubs
 #include "doomgeneric.h"
 
+const int JPEG_BUFFER_OFFSET = 1 + ceil(JPEG_BUFFER_SIZE / 254.0);
+
 uint8_t* getMCU(int x, int y, uint8_t* mcu);
-void getJPEG(uint8_t *resultBuffer, int *resultSize)
+void getJPEG(uint8_t *buffer, int *resultSize)
 {
+    buffer += JPEG_BUFFER_OFFSET;
     // Static copy of JPEG encoder class
     JPEGENC jpg;
     // Struct that stores JPEGENC state
@@ -24,17 +28,17 @@ void getJPEG(uint8_t *resultBuffer, int *resultSize)
 	int iBytePP = 3;
     // Image stride (number of bytes in a row of pixels)
     int iPitch = iBytePP * SCREENWIDTH;
-	rc = jpg.open(resultBuffer, JPEG_BUFFER_SIZE);
+	rc = jpg.open(buffer, JPEG_BUFFER_SIZE - JPEG_BUFFER_OFFSET);
 	if (rc != JPEGE_SUCCESS)
 	{
-        //doom_free(resultBuffer);
+        //doom_free(buffer);
         //doom_free(pBitmap);
         //return 1;
     }
     rc = jpg.encodeBegin(&state, SCREENWIDTH, SCREENHEIGHT, ucPixelType, JPEGE_SUBSAMPLE_420, JPEGE_Q_HIGH);
     if (rc != JPEGE_SUCCESS)
     {
-        //doom_free(resultBuffer);
+        //doom_free(buffer);
         //doom_free(pBitmap);
         //return 1;
     }
@@ -125,11 +129,14 @@ void DG_Init()
 std::set<uint8_t> pressed_keys;
 // buf is NOT null-terminated
 unsigned int processInput(unsigned char *buf, unsigned int len) {
+    //printf("\n%d chars: %.*s\n", len, len, buf);
+
     int state, ascii;
     for (int i = 0; i < len; i++)
     {
         state = (buf[i] >> 7) & 0b1;
         ascii = ~(1 << 7) & buf[i];
+        //printf("INPUT: '%c' STATE %d\n", ascii, ~state, state);
         // key is pressed and not in set
         if (state && pressed_keys.find(ascii) == pressed_keys.end())
             pressed_keys.insert(ascii);
@@ -142,4 +149,67 @@ unsigned int processInput(unsigned char *buf, unsigned int len) {
         addKeyToQueue(state, ascii);
     }
     return 0;
+}
+
+void cobsEncode(uint8_t* buf, int &len) {
+  int dataIndex = JPEG_BUFFER_OFFSET;
+  int bufIndex = 1; // Set to 1 to leave room for the header byte
+  int linkIndex = 0; // Keeps track of the last link location
+  uint8_t linkOffset = 1; // Offset of the next link relative to the previous one
+  len += JPEG_BUFFER_OFFSET;
+  //printf("dataIndex %d len %d\n", dataIndex, len);
+  while (dataIndex < len) {
+    // Zero byte or max link size reached
+    if (buf[dataIndex] == 0 || linkOffset == 255) {
+      buf[linkIndex] = linkOffset;
+      linkIndex = bufIndex;
+      linkOffset = 0;
+      if (buf[dataIndex] == 0)
+        dataIndex++;
+    }
+    // Non-zero data byte
+    else if (buf[dataIndex] != 0) {
+      buf[bufIndex] = buf[dataIndex];
+      dataIndex++;
+    }
+    bufIndex++;
+    linkOffset++;
+  }
+  buf[linkIndex] = linkOffset;
+  buf[bufIndex] = 0;
+  len = bufIndex;
+  len++;
+}
+
+// returns length of decoded data
+void cobsDecode(uint8_t* buf, int &len) {
+  int dataIndex = 1;
+  int bufIndex = 0;
+  uint8_t linkOffset = buf[0];
+  int linkIndex = 0;
+  while (dataIndex < len) {
+    // Link byte
+    if (linkIndex + linkOffset == dataIndex) {
+      // Encoded zero, write
+      if (linkOffset != 255)
+      {
+        buf[bufIndex] = 0;
+        bufIndex++;
+      }
+      // Reached the end, break
+      if (buf[dataIndex] == 0)
+        break;
+      linkIndex = dataIndex;
+      linkOffset = buf[dataIndex];
+    }
+    // Non-link byte
+    else {
+      buf[bufIndex] = buf[dataIndex];
+      bufIndex++;
+    }
+    dataIndex++;
+  }
+  bufIndex--; // Gets incremented before breaking
+  printf("bufIndex: %d, buf[bufIndex]: %d\n", bufIndex, buf[bufIndex]);
+  len = bufIndex;
 }

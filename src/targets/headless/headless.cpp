@@ -42,8 +42,7 @@ int main(int argc, char** argv)
 
     //-----------------------------------------------------------------------
     // Main loop
-    int done = 0, *size;
-    static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
+    int done = 0, size;
     static int resultSize;
     uint8_t* read_buffer;
     while (!sigint_flag)
@@ -51,7 +50,7 @@ int main(int argc, char** argv)
         // read from port
         readSerial(read_buffer, size);
         // process key input
-        processInput(read_buffer, *size);
+        processInput(read_buffer, size);
         delete[] read_buffer;
         
         // Update game loop
@@ -66,7 +65,7 @@ int main(int argc, char** argv)
         endTime = std::chrono::steady_clock::now();
         duration = std::chrono::duration<double, std::milli>(endTime - startTime);
         printf("JPEG %f ms\n", duration.count());
-
+        cobsEncode(resultBuffer, resultSize);
         startTime = std::chrono::steady_clock::now();
         writeSerial(resultBuffer, resultSize);
         endTime = std::chrono::steady_clock::now();
