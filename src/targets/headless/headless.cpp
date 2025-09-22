@@ -18,6 +18,7 @@
 
 void sigintHandler(int sig);
 
+static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
 std::atomic<bool> sigint_flag = false; // for SIGINT handler
 
 int main(int argc, char** argv)

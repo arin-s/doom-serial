@@ -6,7 +6,6 @@ void getJPEG(uint8_t *resultBuffer, int *resultSize);
 void cobsEncode(uint8_t* data, int &len);
 #endif
 extern const int JPEG_BUFFER_OFFSET; // to account for serialisation overhead
-static uint8_t resultBuffer[JPEG_BUFFER_SIZE];
 unsigned int processInput(unsigned char *buf, unsigned int len);
 #ifdef __cplusplus
 extern "C" {
