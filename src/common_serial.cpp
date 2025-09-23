@@ -10,12 +10,13 @@
 // stubs
 #include "doomgeneric.h"
 
-const int JPEG_BUFFER_OFFSET = 1 + ceil(JPEG_BUFFER_SIZE / 254.0);
+const int PROTOCOL_BYTE_COUNT = 1; // Packet type byte, CRC, etc...
+const int COBS_OFFSET = 1 + ceil(JPEG_BUFFER_SIZE / 254.0) + PROTOCOL_BYTE_COUNT;
 
 uint8_t* getMCU(int x, int y, uint8_t* mcu);
 void getJPEG(uint8_t *buffer, int *resultSize)
 {
-    buffer += JPEG_BUFFER_OFFSET;
+    buffer += COBS_OFFSET;
     // Static copy of JPEG encoder class
     JPEGENC jpg;
     // Struct that stores JPEGENC state
@@ -28,7 +29,7 @@ void getJPEG(uint8_t *buffer, int *resultSize)
 	int iBytePP = 3;
     // Image stride (number of bytes in a row of pixels)
     int iPitch = iBytePP * SCREENWIDTH;
-	rc = jpg.open(buffer, JPEG_BUFFER_SIZE - JPEG_BUFFER_OFFSET);
+	rc = jpg.open(buffer, JPEG_BUFFER_SIZE - COBS_OFFSET);
 	if (rc != JPEGE_SUCCESS)
 	{
         //doom_free(buffer);
@@ -151,12 +152,15 @@ unsigned int processInput(unsigned char *buf, unsigned int len) {
     return 0;
 }
 
-void cobsEncode(uint8_t* buf, int &len) {
-  int dataIndex = JPEG_BUFFER_OFFSET;
-  int bufIndex = 1; // Set to 1 to leave room for the header byte
+void cobsEncode(uint8_t* buf, int &len, PacketType type) {
+  int headerOffset = COBS_OFFSET - 1;
+  int dataIndex = headerOffset;
+  int bufIndex = 1; // Set to 1 to leave room for the first link byte
   int linkIndex = 0; // Keeps track of the last link location
   uint8_t linkOffset = 1; // Offset of the next link relative to the previous one
-  len += JPEG_BUFFER_OFFSET;
+  len += headerOffset;
+  len++; // Increase length by 1 to account for packet type byte
+  buf[headerOffset] = type;
   //printf("dataIndex %d len %d\n", dataIndex, len);
   while (dataIndex < len) {
     // Zero byte or max link size reached

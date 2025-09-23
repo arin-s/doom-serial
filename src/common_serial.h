@@ -3,9 +3,16 @@
 void getJPEG(uint8_t *resultBuffer, int *resultSize);
 #define JPEG_BUFFER_SIZE 25000 //25kb
 #ifdef __cplusplus
-void cobsEncode(uint8_t* data, int &len);
+enum PacketType {
+    PACKET_LOG,
+    PACKET_VIDEO,
+    PACKET_SOUND,
+    PACKET_NETWORK,
+    PACKET_INPUT
+};
+void cobsEncode(uint8_t* data, int &len, PacketType type);
 #endif
-extern const int JPEG_BUFFER_OFFSET; // to account for serialisation overhead
+extern const int COBS_OFFSET; // to account for COBS overhead
 unsigned int processInput(unsigned char *buf, unsigned int len);
 #ifdef __cplusplus
 extern "C" {

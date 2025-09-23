@@ -23,6 +23,22 @@
 #include "hal_timer.h"
 #include "cmsis_os.h"
 
+
+#define HEAP_SIZE 1000*50
+static char heap[HEAP_SIZE];
+osSemaphoreId binary_semaphore;
+osSemaphoreDef(binary_semaphore);
+
+// DMA stuff
+void txdma(uint32_t xfer_size, int dma_error);
+uint8_t buffer_writing_arr[JPEG_BUFFER_SIZE];
+uint8_t buffer_dma_arr[JPEG_BUFFER_SIZE];
+uint8_t* buffer_writing = buffer_writing_arr;
+uint8_t* buffer_dma = buffer_dma_arr;
+int buffer_writing_size;
+int buffer_dma_size = JPEG_BUFFER_SIZE;
+const uint32_t DESCRIPTOR_COUNT = JPEG_BUFFER_SIZE/HAL_DMA_MAX_DESC_XFER_SIZE;
+HAL_DMA_DESC_T descriptors[DESCRIPTOR_COUNT];
 static const struct HAL_UART_CFG_T uart_cfg = {
     .parity = HAL_UART_PARITY_NONE,
     .stop = HAL_UART_STOP_BITS_1,
@@ -35,20 +51,6 @@ static const struct HAL_UART_CFG_T uart_cfg = {
     .dma_tx = true,
     .dma_rx_stop_on_err = false,
 };
-
-#define HEAP_SIZE 1000*50
-static char heap[HEAP_SIZE];
-void txdma(uint32_t xfer_size, int dma_error);
-uint8_t buffer_writing_arr[JPEG_BUFFER_SIZE];
-uint8_t buffer_dma_arr[JPEG_BUFFER_SIZE];
-uint8_t* buffer_writing = buffer_writing_arr;
-uint8_t* buffer_dma = buffer_dma_arr;
-int buffer_writing_size;
-int buffer_dma_size = JPEG_BUFFER_SIZE;
-osSemaphoreId binary_semaphore;
-osSemaphoreDef(binary_semaphore);
-const uint32_t DESCRIPTOR_COUNT = JPEG_BUFFER_SIZE/HAL_DMA_MAX_DESC_XFER_SIZE;
-HAL_DMA_DESC_T descriptors[DESCRIPTOR_COUNT];
 
 // called from noapp_main
 void doom_main()
@@ -73,7 +75,7 @@ void doom_main()
         //TRACE(1, "DOOM_UPDATE() %d", end_ms - start_ms);
         // Generate JPEG
         getJPEG(buffer_writing, &buffer_writing_size);
-        cobsEncode(buffer_writing, buffer_writing_size);
+        cobsEncode(buffer_writing, buffer_writing_size, PACKET_VIDEO);
         osSemaphoreWait(binary_semaphore, osWaitForever);
         uint8_t *tmp = buffer_writing;
         buffer_writing = buffer_dma;
@@ -86,8 +88,8 @@ void doom_main()
             uint8_t buf[32] = "value=";
             sprintf((char*)buf + strlen((char*)buf), "%d", result);
             hal_uart_dma_send(HAL_UART_ID_0, buf, strlen((char*)buf), descriptors, NULL);
+            //while(true){}
         }
-
     }
     return;
 }
