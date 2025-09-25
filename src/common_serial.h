@@ -14,9 +14,14 @@ void cobsEncode(uint8_t* data, int &len, PacketType type);
 #endif
 extern const int COBS_OFFSET; // to account for COBS overhead
 unsigned int processInput(unsigned char *buf, unsigned int len);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+#define LOG_CAPACITY 5000
+extern uint8_t log_buf[LOG_CAPACITY];
+extern int log_offset;
+void doom_log(char* buf, ...);
 void* doom_malloc_log(int size, const char* file, const int line);
 void doom_free_log(void* ptr, const char* file, const int line);
 #define doom_malloc(size) doom_malloc_log(size, __FILE__, __LINE__)

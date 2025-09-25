@@ -39,6 +39,7 @@ int buffer_writing_size;
 int buffer_dma_size = JPEG_BUFFER_SIZE;
 const uint32_t DESCRIPTOR_COUNT = JPEG_BUFFER_SIZE/HAL_DMA_MAX_DESC_XFER_SIZE;
 HAL_DMA_DESC_T descriptors[DESCRIPTOR_COUNT];
+uint32_t desc_cnt;
 static const struct HAL_UART_CFG_T uart_cfg = {
     .parity = HAL_UART_PARITY_NONE,
     .stop = HAL_UART_STOP_BITS_1,
@@ -56,7 +57,7 @@ static const struct HAL_UART_CFG_T uart_cfg = {
 void doom_main()
 {
     binary_semaphore = osSemaphoreCreate(osSemaphore(binary_semaphore), 1);
-    int start_ms, end_ms, delta_ms;
+    uint32_t start_ms, end_ms, doom_delta, jpeg_delta, encode_delta;
     // Initialise UART peripheral
     hal_uart_open(HAL_UART_ID_0, &uart_cfg);
     // Set DMA tx handler
@@ -72,16 +73,31 @@ void doom_main()
         start_ms = DG_GetTicksMs();
         doomgeneric_Tick();
         end_ms = DG_GetTicksMs();
-        //TRACE(1, "DOOM_UPDATE() %d", end_ms - start_ms);
+        doom_delta = end_ms - start_ms;
         // Generate JPEG
+        start_ms = DG_GetTicksMs();
         getJPEG(buffer_writing, &buffer_writing_size);
+        end_ms = DG_GetTicksMs();
+        jpeg_delta = end_ms - start_ms;
+        start_ms = DG_GetTicksMs();
         cobsEncode(buffer_writing, buffer_writing_size, PACKET_VIDEO);
+        end_ms = DG_GetTicksMs();
+        encode_delta = end_ms - start_ms;
+        //doom_log("DOOM: %u\nJPEG: %u\nCOBS: %u\n", doom_delta, jpeg_delta, encode_delta);
         osSemaphoreWait(binary_semaphore, osWaitForever);
+        if(log_offset > 0) {
+            memcpy(buffer_dma + COBS_OFFSET, log_buf, log_offset);
+            cobsEncode(buffer_dma, log_offset, PACKET_LOG);
+            desc_cnt = DESCRIPTOR_COUNT;
+            hal_uart_dma_send(HAL_UART_ID_0, buffer_dma, log_offset, descriptors, &desc_cnt);
+            osSemaphoreWait(binary_semaphore, osWaitForever);
+            log_offset = 0;
+        }
         uint8_t *tmp = buffer_writing;
         buffer_writing = buffer_dma;
         buffer_dma = tmp;
         buffer_dma_size = buffer_writing_size;
-        uint32_t desc_cnt = DESCRIPTOR_COUNT;
+        desc_cnt = DESCRIPTOR_COUNT;
         int result = hal_uart_dma_send(HAL_UART_ID_0, buffer_dma, buffer_dma_size, descriptors, &desc_cnt);
         if(!result)
         {

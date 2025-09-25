@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 // JPEGENC
 #include "JPEGENC.h"
@@ -56,6 +57,22 @@ void doom_free_log(void* ptr, const char* file, const int line)
         return;
     }
     med_free(ptr);
+}
+// Logging stuff
+uint8_t log_buf[LOG_CAPACITY];
+int log_offset;
+void doom_log(char* buf, ...) {
+    va_list ap;
+    va_start(ap, buf);
+    int len = vsnprintf(NULL, 0, buf, ap);
+    if (len + log_offset > LOG_CAPACITY)
+    {
+        va_end(ap);
+        return;
+    }
+    vsprintf((char*)log_buf + log_offset, buf, ap);
+    va_end(ap);
+    log_offset += len;
 }
 }
 /*
