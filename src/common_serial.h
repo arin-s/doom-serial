@@ -21,6 +21,7 @@ extern "C" {
 #define LOG_CAPACITY 5000
 extern uint8_t log_buf[LOG_CAPACITY];
 extern int log_offset;
+uint32_t DG_GetTicksUs();
 void doom_log(char* buf, ...);
 void* doom_malloc_log(int size, const char* file, const int line);
 void doom_free_log(void* ptr, const char* file, const int line);

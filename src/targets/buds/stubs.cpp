@@ -28,13 +28,14 @@ void DG_SleepMs(uint32_t ms)
     osDelay(ms);
 }
 
-uint32_t second = 0;
-uint32_t usecond = 0;
-uint32_t prev_tick = 0;
 uint32_t DG_GetTicksMs()
 {
+    static uint32_t second = 0;
+    static uint32_t usecond = 0;
+    static uint32_t prev_tick = 0;
     uint32_t cur_tick = hal_sys_timer_get();
     usecond += TICKS_TO_US(hal_timer_get_passed_ticks(cur_tick, prev_tick));
+    prev_tick = cur_tick;
     second += usecond / 1000000;
     usecond = usecond % 1000000;
     return (second * 1000) + (usecond / 1000); /* return milliseconds */
@@ -73,6 +74,19 @@ void doom_log(char* buf, ...) {
     vsprintf((char*)log_buf + log_offset, buf, ap);
     va_end(ap);
     log_offset += len;
+}
+
+uint32_t DG_GetTicksUs()
+{
+    static uint32_t second = 0;
+    static uint32_t usecond = 0;
+    static uint32_t prev_tick = 0;
+    uint32_t cur_tick = hal_sys_timer_get();
+    usecond += TICKS_TO_US(hal_timer_get_passed_ticks(cur_tick, prev_tick));
+    prev_tick = cur_tick;
+    second += usecond / 1000000;
+    usecond = usecond % 1000000;
+    return (second * 1000000) + usecond; /* return microseconds */
 }
 }
 /*
