@@ -11,6 +11,7 @@ enum PacketType {
     PACKET_INPUT
 };
 void cobsEncode(uint8_t* data, int &len, PacketType type);
+void cobsDecode(uint8_t* buf, int &len);
 #endif
 extern const int COBS_OFFSET; // to account for COBS overhead
 unsigned int processInput(unsigned char *buf, unsigned int len);

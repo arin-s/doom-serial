@@ -83,7 +83,7 @@ uint8_t* getMCU(int x, int y, uint8_t* mcu)
     return mcu;
 }
 
-#define KEYQUEUE_SIZE 16
+#define KEYQUEUE_SIZE 32
 static unsigned short s_KeyQueue[KEYQUEUE_SIZE];
 static unsigned int s_KeyQueueWriteIndex = 0;
 static unsigned int s_KeyQueueReadIndex = 0;
@@ -130,14 +130,13 @@ void DG_Init()
 std::set<uint8_t> pressed_keys;
 // buf is NOT null-terminated
 unsigned int processInput(unsigned char *buf, unsigned int len) {
-    //printf("\n%d chars: %.*s\n", len, len, buf);
-
+    //doom_log("chars: %d\n", len);
     int state, ascii;
     for (int i = 0; i < len; i++)
     {
         state = (buf[i] >> 7) & 0b1;
         ascii = ~(1 << 7) & buf[i];
-        //printf("INPUT: '%c' STATE %d\n", ascii, ~state, state);
+        //doom_log("INPUT: '%c' HEX: '%x' STATE %d\n", ascii, ascii, state);
         // key is pressed and not in set
         if (state && pressed_keys.find(ascii) == pressed_keys.end())
             pressed_keys.insert(ascii);
@@ -146,7 +145,7 @@ unsigned int processInput(unsigned char *buf, unsigned int len) {
             pressed_keys.erase(ascii);
         else
             continue;
-        //printf("INPUT CHANGE: %c FROM %d to %d\n", ascii, ~state, state);
+        //doom_log("INPUT CHANGE: %c FROM %d to %d\n", ascii, !state, state);
         addKeyToQueue(state, ascii);
     }
     return 0;
@@ -185,7 +184,6 @@ void cobsEncode(uint8_t* buf, int &len, PacketType type) {
   len++;
 }
 
-// returns length of decoded data
 void cobsDecode(uint8_t* buf, int &len) {
   int dataIndex = 1;
   int bufIndex = 0;

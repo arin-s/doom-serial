@@ -22,6 +22,7 @@
 #include "heap_api.h"
 #include "hal_timer.h"
 #include "cmsis_os.h"
+#include "cmsis.h"
 
 
 #define HEAP_SIZE 1000*50
@@ -29,7 +30,7 @@ static char heap[HEAP_SIZE];
 osSemaphoreId binary_semaphore;
 osSemaphoreDef(binary_semaphore);
 
-// DMA stuff
+// TX stuff
 void txdma(uint32_t xfer_size, int dma_error);
 uint8_t buffer_writing_arr[JPEG_BUFFER_SIZE];
 uint8_t buffer_dma_arr[JPEG_BUFFER_SIZE];
@@ -53,6 +54,15 @@ static const struct HAL_UART_CFG_T uart_cfg = {
     .dma_rx_stop_on_err = false,
 };
 
+// RX stuff
+#define RX_RING_SIZE 4096
+volatile uint8_t rx_ring_buffer[RX_RING_SIZE];
+volatile uint32_t rx_head = 0;
+volatile uint32_t rx_tail = 0;
+volatile bool rx_overflow = false;
+void rx_irq_handler(enum HAL_UART_ID_T id, union HAL_UART_IRQ_T status);
+bool rx_read_packet(uint8_t* buf, int &packet_len);
+
 // called from noapp_main
 void doom_main()
 {
@@ -61,7 +71,19 @@ void doom_main()
     // Initialise UART peripheral
     hal_uart_open(HAL_UART_ID_0, &uart_cfg);
     // Set DMA tx handler
+
     hal_uart_irq_set_dma_handler(HAL_UART_ID_0, NULL, txdma);
+    // Set rx irq handler
+    union HAL_UART_IRQ_T uart_irq_mask;
+    uart_irq_mask.reg = 0;
+    uart_irq_mask.RX = 1;
+    uart_irq_mask.RT = 1;
+    uart_irq_mask.BE = 1;
+    uart_irq_mask.FE = 1;
+    uart_irq_mask.OE = 1;
+    uart_irq_mask.PE = 1;
+    hal_uart_irq_set_mask(HAL_UART_ID_0, uart_irq_mask);
+    hal_uart_irq_set_handler(HAL_UART_ID_0, rx_irq_handler);
     // Heap init
     med_heap_init(heap, HEAP_SIZE);
     // Initialize doom
@@ -69,6 +91,22 @@ void doom_main()
     // Main loop
     while (true)
     {
+        // Process RX buffer in critical zone
+        uint32_t lock = int_lock();
+        int packet_len;
+        int iter = 0;
+        while(rx_read_packet(buffer_writing, packet_len)) {
+            doom_log("Packet: ");
+            for(int i = 0; i < packet_len; i++) {
+                doom_log("%x", buffer_writing[i]);
+            }
+            doom_log("\n");
+            cobsDecode(buffer_writing, packet_len);
+            processInput(buffer_writing, packet_len);
+            iter++;
+        }
+        doom_log("\nPackets read: %d\n", iter);
+        int_unlock(lock);
         // Update game loop
         start_ms = DG_GetTicksMs();
         doomgeneric_Tick();
@@ -110,6 +148,46 @@ void doom_main()
     return;
 }
 
+// TX dma irq handler
 void txdma(uint32_t xfer_size, int dma_error) {
     osSemaphoreRelease(binary_semaphore);
+}
+
+// RX irq handler
+void rx_irq_handler(enum HAL_UART_ID_T id, union HAL_UART_IRQ_T status) {
+    while (hal_uart_readable(id)) {
+        uint8_t rx_byte = hal_uart_getc(id);
+        uint32_t next = (rx_head + 1) % RX_RING_SIZE;
+        if (next == rx_tail) {
+            // ring buffer overflow
+            rx_overflow = true;
+            return;
+        }
+        rx_ring_buffer[rx_head] = rx_byte;
+        rx_head = next;
+    }
+}
+
+// reads a packet into buf, returns true if 0 delimiter present
+bool rx_read_packet(uint8_t* buf, int &packet_len) {
+    // if empty, return
+    if (rx_tail == rx_head)
+        return false;
+    int rx_tail_revert = rx_tail;
+    int i = 0;
+    while(rx_tail != rx_head) {
+        // write tail to buffer
+        buf[i] = rx_ring_buffer[rx_tail];
+        // increment tail
+        rx_tail = (rx_tail + 1) % RX_RING_SIZE;
+        // if valid packet, return
+        if (buf[i] == 0) {
+            packet_len = i+1;
+            return true;
+        }
+        i++;
+    }
+    //
+    rx_tail = rx_tail_revert;
+    return false;
 }
