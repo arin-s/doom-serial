@@ -40,6 +40,8 @@
 #include "net_sdl.h"
 #include "net_loop.h"
 
+#include "common_serial.h"
+
 // The complete set of data for a particular tic.
 
 typedef struct
@@ -130,7 +132,7 @@ static int GetAdjustedTime(void)
         time_ms += (offsetms / FRACUNIT);
     }
 
-    return (time_ms * TICRATE) / 1000;
+    return (time_ms * (long long)TICRATE) / 1000;
 }
 
 static boolean BuildNewTic(void)

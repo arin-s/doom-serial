@@ -12,6 +12,7 @@
 #include "buds.h"
 #include "common_serial.h"
 #include "doomgeneric.h"
+#include "d_loop.h"
 
 // jpegenc
 #include "JPEGENC.h"
@@ -96,20 +97,23 @@ void doom_main()
         int packet_len;
         int iter = 0;
         while(rx_read_packet(buffer_writing, packet_len)) {
-            doom_log("Packet: ");
+            doom_log("RX Packet: ");
             for(int i = 0; i < packet_len; i++) {
-                doom_log("%x", buffer_writing[i]);
+                //doom_log("%x", buffer_writing[i]);
             }
-            doom_log("\n");
+            //doom_log("\n");
             cobsDecode(buffer_writing, packet_len);
             processInput(buffer_writing, packet_len);
             iter++;
         }
-        doom_log("\nPackets read: %d\n", iter);
+        doom_log("\nRX Packets this loop: %d\n", iter);
         int_unlock(lock);
         // Update game loop
         start_ms = DG_GetTicksMs();
         doomgeneric_Tick();
+        // Avoid int overflow
+        /*if(gametic >= 2147482)
+            hal_cmu_sys_reboot();*/
         end_ms = DG_GetTicksMs();
         doom_delta = end_ms - start_ms;
         // Generate JPEG
