@@ -97,7 +97,7 @@ void doom_main()
         int packet_len;
         int iter = 0;
         while(rx_read_packet(buffer_writing, packet_len)) {
-            doom_log("RX Packet: ");
+            //doom_log("RX Packet: ");
             for(int i = 0; i < packet_len; i++) {
                 //doom_log("%x", buffer_writing[i]);
             }
@@ -106,7 +106,7 @@ void doom_main()
             processInput(buffer_writing, packet_len);
             iter++;
         }
-        doom_log("\nRX Packets this loop: %d\n", iter);
+        //doom_log("\nRX Packets this loop: %d\n", iter);
         int_unlock(lock);
         // Update game loop
         start_ms = DG_GetTicksMs();

@@ -20,6 +20,7 @@
 #include "z_zone.h"
 #include "i_system.h"
 #include "doomtype.h"
+#include "common_serial.h"
 
 
 //
@@ -183,8 +184,8 @@ void Z_Free (void* ptr)
 
 void* Z_Malloc2(int size, int tag, void* user, const char* debugfile, int debugline)
 {
-#ifndef DOOMBUDS
-    printf("Z_ALLOC:%d USED:%d %s %d\n", size, ZONE_HEAP_SIZE_KB - Z_FreeMemory(), debugfile, debugline);
+#ifdef DOOMBUDS
+    //doom_log("Z_ALLOC:%d USED:%d %s %d\n", size, ZONE_HEAP_SIZE_KB - Z_FreeMemory(), debugfile, debugline);
 #endif
     int		extra;
     memblock_t*	start;

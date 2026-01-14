@@ -59,19 +59,19 @@ int main(int argc, char** argv)
         doomgeneric_Tick();
         auto endTime = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration<double, std::milli>(endTime - startTime);
-        printf("DOOM %f ms\n", duration.count());
+        //printf("DOOM %f ms\n", duration.count());
 
         startTime = std::chrono::steady_clock::now();
         getJPEG(resultBuffer, &resultSize);
         endTime = std::chrono::steady_clock::now();
         duration = std::chrono::duration<double, std::milli>(endTime - startTime);
-        printf("JPEG %f ms\n", duration.count());
-        cobsEncode(resultBuffer, resultSize);
+        //printf("JPEG %f ms\n", duration.count());
+        cobsEncode(resultBuffer, resultSize, PACKET_VIDEO);
         startTime = std::chrono::steady_clock::now();
         writeSerial(resultBuffer, resultSize);
         endTime = std::chrono::steady_clock::now();
         duration = std::chrono::duration<double, std::milli>(endTime - startTime);
-        printf("WRITESTREAM %f ms\n", duration.count());
+        //printf("WRITESTREAM %f ms\n", duration.count());
     }
     closeSerial();
     return 0;
@@ -104,20 +104,20 @@ extern "C" {
 static int alloctotal = 0;
 void* doom_malloc_log(int size, const char* file, const int line)
 {
-    printf("\nMALLOCATING:%d ", size);
+    doom_log("\nMALLOCATING:%d ", size);
     void* ptr = malloc((size_t)size);
     if (ptr == NULL) {
-        printf("MALLOC FAILED! Size:%d at %s:%d\n", size, file, line);
+        doom_log("MALLOC FAILED! Size:%d at %s:%d\n", size, file, line);
         exit(1);
     }
     alloctotal += size;
-    printf("USED:%d at %s %d", alloctotal, file, line);
+    doom_log("USED:%d at %s %d", alloctotal, file, line);
     return ptr;
 }
 void doom_free_log(void* ptr, const char* file, const int line)
 {
     if (ptr == NULL) {
-        printf("WARNING: Trying to free NULL pointer\n");
+        doom_log("WARNING: Trying to free NULL pointer\n");
         return;
     }
     alloctotal -= malloc_usable_size(ptr);

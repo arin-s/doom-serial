@@ -36,13 +36,13 @@ uint32_t DG_GetTicksMs()
     static uint32_t prev_tick = 0;
     uint32_t cur_tick = hal_sys_timer_get();
     usecond += TICKS_TO_US(hal_timer_get_passed_ticks(cur_tick, prev_tick));
-    doom_log("DG_GetTicksMs: ticks_to_us %u\n",usecond);
+    //doom_log("DG_GetTicksMs: ticks_to_us %u\n",usecond);
     prev_tick = cur_tick;
     second += usecond / 1000000;
     usecond = usecond % 1000000;
-    doom_log("DG_GetTicksMs: second: %u\nusecond: %u\nprev_tick: %u\n", second, usecond, prev_tick);
-    doom_log("DG_GetTicksMs: return_val: %u\n", (second * 1000LL) + (usecond / 1000));
-    doom_log("Gametics: %d", gametic)
+    //doom_log("DG_GetTicksMs: second: %u\nusecond: %u\nprev_tick: %u\n", second, usecond, prev_tick);
+    //doom_log("DG_GetTicksMs: return_val: %u\n", (second * 1000LL) + (usecond / 1000));
+    //doom_log("Gametics: %d", gametic);
     return (second * 1000LL) + (usecond / 1000); /* return milliseconds */
 }
 extern "C" {
