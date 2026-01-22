@@ -21,6 +21,7 @@
 #include "i_system.h"
 #include "doomtype.h"
 #include "common_serial.h"
+#include <math.h>
 
 
 //
@@ -181,12 +182,11 @@ void Z_Free (void* ptr)
 //
 #define MINFRAGMENT		64
 
-
+int maxdoomalloc = 0;
 void* Z_Malloc2(int size, int tag, void* user, const char* debugfile, int debugline)
 {
-#ifdef DOOMBUDS
-    //doom_log("Z_ALLOC:%d USED:%d %s %d\n", size, ZONE_HEAP_SIZE_KB - Z_FreeMemory(), debugfile, debugline);
-#endif
+    maxdoomalloc = fmax(maxdoomalloc, ZONE_HEAP_SIZE_KB - Z_FreeMemory());
+    doom_log("Z_ALLOC:%d USED:%d MAX:%d %s %d\n", size, ZONE_HEAP_SIZE_KB - Z_FreeMemory(), maxdoomalloc, debugfile, debugline);
     int		extra;
     memblock_t*	start;
     memblock_t* rover;

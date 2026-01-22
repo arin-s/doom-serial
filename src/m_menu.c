@@ -231,11 +231,6 @@ void M_ClearMenus (void);
 enum
 {
     newgame = 0,
-    options,
-    loadgame,
-    savegame,
-    readthis,
-    quitdoom,
     main_end
 } main_e;
 
@@ -2089,7 +2084,6 @@ void M_Init (void)
     {
       case commercial:
         // Commercial has no "read this" entry.
-	MainMenu[readthis] = MainMenu[quitdoom];
 	MainDef.numitems--;
 	MainDef.y += 8;
 	NewDef.prevMenu = &MainDef;

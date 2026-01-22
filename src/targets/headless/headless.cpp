@@ -5,6 +5,7 @@
 #include <atomic>
 #include <chrono>
 #include <malloc.h>
+#include <stdarg.h>
 
 #include "doomdef.h"
 
@@ -122,6 +123,12 @@ void doom_free_log(void* ptr, const char* file, const int line)
     }
     alloctotal -= malloc_usable_size(ptr);
     free(ptr);
+}
+void doom_log(char* buf, ...) {
+    va_list ap;
+    va_start(ap, buf);
+    vprintf(buf, ap);
+    va_end(ap);
 }
 #ifdef __cplusplus
 }
