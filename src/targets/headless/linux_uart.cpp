@@ -36,6 +36,10 @@ int openSerial(char *port)
 {
     // Open the serial port. Change device path as needed (currently set to an standard FTDI USB-UART cable type device)
     serial_port = open(port, O_RDWR);
+    if (serial_port < 0) {
+        printf("Error %i from open: %s\n", errno, strerror(errno));
+        return -1;
+    }
     usleep(1000);
     ioctl(serial_port, TCFLSH, 2); // flush both
 
@@ -46,7 +50,7 @@ int openSerial(char *port)
     if (ioctl(serial_port, TCGETS2, &tty) < 0)
     {
         printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
-        return 1;
+        return -1;
     }
 
     tty.c_cflag &= ~PARENB;        // Clear parity bit, disabling parity (most common)
