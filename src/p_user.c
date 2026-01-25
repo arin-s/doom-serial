@@ -216,8 +216,10 @@ void P_DeathThink (player_t* player)
     else if (player->damagecount)
 	player->damagecount--;
 	
+    if (player->mo->reactiontime > 0)
+        player->mo->reactiontime--;
 
-    if (player->cmd.buttons & BT_USE)
+    if (player->cmd.buttons & BT_USE || !player->mo->reactiontime)
 	player->playerstate = PST_REBORN;
 }
 

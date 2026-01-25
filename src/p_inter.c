@@ -703,6 +703,7 @@ P_KillMobj
 	target->flags &= ~MF_SOLID;
 	target->player->playerstate = PST_DEAD;
 	P_DropWeapon (target->player);
+	target->reactiontime = 70;
 
 	if (target->player == &players[consoleplayer]
 	    && automapactive)
